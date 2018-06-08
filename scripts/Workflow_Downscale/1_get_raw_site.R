@@ -39,13 +39,13 @@
 # -----------------------------------
 rm(list=ls())
 
-wd.base <- "~/Dropbox/PalEON_CR/met_ensemble"
-setwd(wd.base)
+# wd.base <- "~/Dropbox/PalEON_CR/met_ensemble"
+# setwd(wd.base)
 
 site.name = "WILLOWCREEK"
 site.lat  =  45.805822 # 45°48′21″N
 site.lon  = -90.079722 # 90°04′47″W
-path.out = "~/Desktop/Research/met_ensembles/data/paleon_sites"
+path.out = "/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Raw_Inputs/"
 
 # Path to pecan repository where functions now live
 path.pecan <- "~/Desktop/Research/pecan/"
@@ -65,7 +65,7 @@ download.CRUNCEP(outfolder=file.path(path.out, site.name, "CRUNCEP"),
                  start_date="1901-01-01", end_date=paste0("2010-12-31"), 
                  site_id=site.name, lat.in=site.lat, lon.in=site.lon)
 
-# Extract from the GCMs:
+# Extract from the GCMs (past runs):
 source(file.path(path.pecan, "modules/data.atmosphere/R", "extract_local_CMIP5.R"))
 path.cmip5 = "/Volumes/Celtis/Meteorology/CMIP5/"
 GCM.scenarios = c("p1000", "historical")
@@ -219,3 +219,5 @@ for(GCM in GCM.list){
     dev.off()
   }
 }
+
+# Extract Future scenarios from MACA (downscaled & at daily resolution)
