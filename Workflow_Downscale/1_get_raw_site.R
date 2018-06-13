@@ -45,7 +45,7 @@ rm(list=ls())
 site.name = "WILLOWCREEK"
 site.lat  =  45.805822 # 45°48′21″N
 site.lon  = -90.079722 # 90°04′47″W
-path.out = "/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Raw_Inputs/WILLOWCREEK"
+path.out = "/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Raw_Inputs/"
 
 # Path to pecan repository where functions now live
 path.pecan <- "~/Desktop/Research/pecan/"

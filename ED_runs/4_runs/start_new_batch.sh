@@ -96,7 +96,13 @@ do
 		ln -s $ed_exec
 		cp ../../ED2IN_Base_MetManuscript ED2IN
 		cp ${setup_dir}PalEON_Phase2.v1.xml .
-		cp ${file_base}/0_setup/PL_MET_HEADER .
+		
+		if [[ "$SITE" == "NLDAS_raw" ]]
+		then
+			cp ${file_base}/0_setup/PL_MET_HEADER_NLDAS_RAW .
+		else
+			cp ${file_base}/0_setup/PL_MET_HEADER_HOURLY .
+		fi
 
 		# Make sure the file paths on the Met Header have been updated for the current file structure
 		# Update Met Header
