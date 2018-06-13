@@ -1,3 +1,4 @@
 *.history
 *.Rhistory
 data/*
+*.h5

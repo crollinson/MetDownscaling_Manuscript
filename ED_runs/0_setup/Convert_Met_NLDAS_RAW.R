@@ -5,7 +5,7 @@ path.pecan <- "~/Desktop/Research/pecan/"
 source(file.path(path.pecan, "base/utils/R/seconds_in_year.R"))
 source(file.path(path.pecan, "base/utils/R/days_in_year.R"))
 source(file.path(path.pecan, "modules/data.atmosphere/R/solar_angle.R"))
-source(file.path(path.pecan, "models/ed/R/met2model.ED2.R"))
+source("pecan_met_conversion/met2model.ED2.R")
 
 
 in.path="/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Raw_Inputs/WILLOWCREEK/NLDAS/"
