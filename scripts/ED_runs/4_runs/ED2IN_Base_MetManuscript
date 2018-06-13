@@ -8,7 +8,7 @@
 $ED_NL
 
    !----- Simulation title (64 characters). -----------------------------------------------!
-   NL%EXPNME = 'PalEON Spin Initial'
+   NL%EXPNME = 'WillowCreek_TestENS'
    !---------------------------------------------------------------------------------------!
 
 
@@ -32,7 +32,7 @@ $ED_NL
    !---------------------------------------------------------------------------------------!
    NL%IMONTHA  = 06
    NL%IDATEA   = 01
-   NL%IYEARA   = 1850
+   NL%IYEARA   = 1999
    NL%ITIMEA   = 0000
    !---------------------------------------------------------------------------------------!
 
@@ -43,7 +43,7 @@ $ED_NL
    !---------------------------------------------------------------------------------------!
    NL%IMONTHZ  = 01    ! Month
    NL%IDATEZ   = 01    ! Day
-   NL%IYEARZ   = 2851  ! Year
+   NL%IYEARZ   = 2015  ! Year
    NL%ITIMEZ   = 0000  ! UTC
    !---------------------------------------------------------------------------------------!
 
@@ -158,9 +158,9 @@ $ED_NL
    !            soil types                                                                 !
    !---------------------------------------------------------------------------------------!
     NL%N_POI    =    1
-    NL%POI_LAT  =  999.99 
-    NL%POI_LON  = -888.88
-    NL%POI_RES  = 0.5   
+    NL%POI_LAT  =  45.805822 
+    NL%POI_LON  = -90.079722
+    NL%POI_RES  = 0.125   
    !---------------------------------------------------------------------------------------!
 
 
@@ -197,11 +197,11 @@ $ED_NL
    ! ISOUTPUT -- restart file, for HISTORY runs.  The time interval between files is       !
    !             determined by FRQHIS                                                      !
    !---------------------------------------------------------------------------------------!
-   NL%IFOUTPUT  =  0
+   NL%IFOUTPUT  =  3
    NL%IDOUTPUT  =  0
-   NL%IMOUTPUT  =  3
+   NL%IMOUTPUT  =  0
    NL%IQOUTPUT  =  0
-   NL%IYOUTPUT  =  3
+   NL%IYOUTPUT  =  0
    NL%ITOUTPUT  =  0
    NL%ISOUTPUT  =  3
    !---------------------------------------------------------------------------------------!
@@ -280,7 +280,7 @@ $ED_NL
    !                         Multiple timepoints should not be used in the history files   !
    !                         if you intend to use these for HISTORY runs.                  !
    !---------------------------------------------------------------------------------------!
-   NL%OUTFAST    = -2
+   NL%OUTFAST    = -1
    NL%OUTSTATE   = 0
    !---------------------------------------------------------------------------------------!
 
@@ -293,7 +293,7 @@ $ED_NL
    ! FRQSTATE -- time interval between history files, units defined by UNITSTATE.          !
    !---------------------------------------------------------------------------------------!
    NL%ICLOBBER  = 1
-   NL%FRQFAST   = 21600
+   NL%FRQFAST   = 3600
    NL%FRQSTATE  = 1
    !---------------------------------------------------------------------------------------!
 
@@ -303,8 +303,8 @@ $ED_NL
    ! FFILOUT -- Path and prefix for analysis files (all but history/restart).              !
    ! SFILOUT -- Path and prefix for history files.                                         !
    !---------------------------------------------------------------------------------------!
-   NL%FFILOUT = '/projectnb/dietzelab/paleon/ED_runs/MIP2_Region/1_spin_initial/phase2_spininit.v1/TEST/analy/TEST'
-   NL%SFILOUT = '/projectnb/dietzelab/paleon/ED_runs/MIP2_Region/1_spin_initial/phase2_spininit.v1/TEST/histo/TEST'
+   NL%FFILOUT = '/dummy/path/TEST/analy/TEST'
+   NL%SFILOUT = '/dummy/path/TEST/histo/TEST'
    !---------------------------------------------------------------------------------------!
 
 
@@ -356,7 +356,7 @@ $ED_NL
    !
    !
    !---------------------------------------------------------------------------------------!
-   NL%IED_INIT_MODE   = 0
+   NL%IED_INIT_MODE   = 3 ! Will look for a .css & .pss file
    !---------------------------------------------------------------------------------------!
 
 
@@ -383,7 +383,7 @@ $ED_NL
    !              path+prefix will be used, as the history for every grid must have come   !
    !              from the same simulation.                                                !
    !---------------------------------------------------------------------------------------!
-   NL%SFILIN   = '/projectnb/dietzelab/paleon/ED_runs/MIP2_Region/1_spin_initial/phase2_spininit.v1/TEST/histo/TEST'
+   NL%SFILIN   = '/dummy/path/TEST/histo/TEST'
    !---------------------------------------------------------------------------------------!
 
 
@@ -445,7 +445,7 @@ $ED_NL
    !   5 -- loam                |  11 -- clay                |  17 -- clayey silt          !
    !   6 -- sandy clay loam     |  12 -- peat                                              !
    !---------------------------------------------------------------------------------------!
-   NL%NSLCON   = 4      ! Default soil type if ISOILFLG = 2 (choices below:)
+   NL%NSLCON   = 3      ! Default soil type if ISOILFLG = 2 (choices below:)
    !---------------------------------------------------------------------------------------!
 
 
@@ -493,8 +493,8 @@ $ED_NL
    !     They are used only when ISOILFLG is 2, both values are between 0. and 1., and     !
    ! theira sum doesn't exceed 1.  Otherwise standard ED values will be used instead.      !
    !---------------------------------------------------------------------------------------!
-   NL%SLXCLAY = 0.06
-   NL%SLXSAND = 0.71
+   NL%SLXCLAY = 0.09
+   NL%SLXSAND = 0.63
    !---------------------------------------------------------------------------------------!
 
 
@@ -528,9 +528,9 @@ $ED_NL
    !               2 = porosity (saturation)                                               !
    ! STGOFF  - initial temperature offset (soil temperature = air temperature + offset)    !
    !---------------------------------------------------------------------------------------!
-   NL%SLZ     = -4.00, -3.00, -2.17, -1.50, -1.10, -0.80, -0.60, -0.45, -0.30, -0.20, -0.12, -0.06
-   NL%SLMSTR  =  1.00.  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00
-   NL%STGOFF  =  0.00.  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00
+   NL%SLZ     = -1.17, -0.80, -0.60, -0.45, -0.30, -0.20, -0.12, -0.06
+   NL%SLMSTR  =  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00,  1.00
+   NL%STGOFF  =  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00,  0.00
    !---------------------------------------------------------------------------------------!
 
 
@@ -557,13 +557,13 @@ $ED_NL
    !                      soil temperature and moisture.                                   !
    !  SOILDEPTH_DB     -- Dataset in case you want to read in soil depth information.      !
    !---------------------------------------------------------------------------------------!
-   NL%VEG_DATABASE     = '/projectnb/dietzelab/EDI/oge2OLD/OGE2_'
-   NL%SOIL_DATABASE    = '/projectnb/dietzelab/EDI/faoOLD/FAO_'
-   NL%LU_DATABASE      = '/projectnb/dietzelab/EDI/ed_inputs/glu/glu-'
+   NL%VEG_DATABASE     = '/home/models/ED_inputs/oge2OLD/OGE2_'
+   NL%SOIL_DATABASE    = '/home/models/ED_inputs/faoOLD/FAO_'
+   NL%LU_DATABASE      = '/home/models/ED_inputs/ed_inputs/glu/glu-'
    NL%PLANTATION_FILE  = ''
-   NL%THSUMS_DATABASE  = '/projectnb/dietzelab/EDI/ed_inputs/'
-   NL%ED_MET_DRIVER_DB = '/projectnb/dietzelab/paleon/ED_runs/MIP2_Region/0_setup/PL_MET_HEADER'
-   NL%SOILSTATE_DB     = '/projectnb/dietzelab/EDI/ed_inputs/STW1996OCT.dat'
+   NL%THSUMS_DATABASE  = '/home/models/ED_inputs/ed_inputs/'
+   NL%ED_MET_DRIVER_DB = '/dummy/path/PL_MET_HEADER'
+   NL%SOILSTATE_DB     = '/home/models/ED_inputs/ed_inputs/STW1996OCT.dat'
    NL%SOILDEPTH_DB     = ''
    !---------------------------------------------------------------------------------------!
 
@@ -1429,8 +1429,8 @@ $ED_NL
    !---------------------------------------------------------------------------------------!
    NL%IMETTYPE    = 1
    NL%ISHUFFLE    = 0
-   NL%METCYC1     = 1850
-   NL%METCYCF     = 1869
+   NL%METCYC1     = 1999
+   NL%METCYCF     = 2015
    NL%IMETAVG     = 2
    NL%IMETRAD     = 1
    NL%INITIAL_CO2 = 279
