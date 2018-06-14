@@ -1,5 +1,5 @@
 #!bin/bash
-# This file starts the next cells from the PalEON Regional ED Runs
+# This file starts the next runID from the PalEON Regional ED Runs
 # Christy Rollinson, crollinson@gmail.com
 
 # Things to specify
@@ -15,7 +15,7 @@
 # Order of Operations
 # 1) Sync file with order sites & status/location 
 # 2) Add file directories for any sites that are remote so we don't repeat them
-# 3) loop through the next n cells and adjust base ED2IN for specific characters
+# 3) loop through the next n runID and adjust base ED2IN for specific characters
 #    Things to be Modified per site:
 #     -  NL%POI_LAT  =  
 #     -  NL%POI_LON  = 
@@ -33,11 +33,12 @@
 # Define constants & file paths for the scripts
 file_base=~/MetDownscaling_Manuscript/ED_runs/ # whatever you want the base output file path to be
 EDI_base=/home/models/ED_inputs/ # The location of basic ED Inputs for you
+met_base=/home/models/ED_MET/WILLOWCREEK.v1
 
 ed_exec=/home/models/ED2/ED/build/ed_2.1-opt # Location of the ED Executable
 file_dir=${file_base}/4_runs/ed_runs.v1/ # Where everything will go
 setup_dir=${file_base}/0_setup/ # Where some constant setup files are
-site_file=${setup_dir}/Downscaling_RunPriority.csv # # Path to list of ED sites w/ status
+site_file=${setup_dir}/ED_Run_Priority.csv # # Path to list of ED sites w/ status
 
 # # Lets double check and make sure the order status file is up to date
 # # Note: need to make sure you don't have to enter a password for this to work right
@@ -52,17 +53,16 @@ n=1
 mkdir -p $file_dir
 
 # Extract the file names of sites that haven't been started yet
-sites_done=($(awk -F ',' 'NR>1 && $6!="" {print $4}' ${site_file})) # Get sites that have a location
-cells=($(awk -F ',' 'NR>1 && $6=="" {print $4}' ${site_file}))
-lat=($(awk -F ',' 'NR>1 && $6=="" {print $3}' ${site_file}))
-lon=($(awk -F ',' 'NR>1 && $6=="" {print $2}' ${site_file}))
+sites_done=($(awk -F ',' 'NR>1 && $6!="" {print $3}' ${site_file})) # Get sites that have a location
+runID=($(awk -F ',' 'NR>1 && $6=="" {print $3}' ${site_file}))
+met=($(awk -F ',' 'NR>1 && $6=="" {print $2}' ${site_file}))
 
 
 # for FILE in $(seq 0 (($n-1)))
 for ((FILE=0; FILE<$n; FILE++)) # This is a way of doing it so that we don't have to modify N
 do
 	# Site Name and Lat/Lon
-	SITE=${cells[FILE]}
+	SITE=${runID[FILE]}
 	echo $SITE
 
 	lat_now=${lat[FILE]}
