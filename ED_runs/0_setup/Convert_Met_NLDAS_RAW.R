@@ -15,5 +15,5 @@ outfolder="~/Desktop/Research/MetDownscaling_Manuscript/ED_runs/ED_met"
 met2model.ED2(in.path=in.path, 
               in.prefix=in.prefix, 
               outfolde=outfolder, 
-              start_date="2000-01-01", 
-              end_date="2000-12-31")
+              start_date="1999-01-01", 
+              end_date="2014-12-31")
