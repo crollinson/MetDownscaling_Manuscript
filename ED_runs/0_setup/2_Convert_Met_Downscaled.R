@@ -1,5 +1,5 @@
 # Define pecan file path
-path.pecan <- "~/pecan/"
+path.pecan <- "~/Desktop/Research/pecan/"
 
 # Source PEcAn ED conversion file
 source(file.path(path.pecan, "base/utils/R/seconds_in_year.R"))
@@ -10,8 +10,8 @@ source(file.path(path.pecan, "models/ed/R/check_ed_metheader.R"))
 source("pecan_met_conversion/met2model.ED2.R")
 
 
-in.base="/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Raw_Inputs/WILLOWCREEK/"
-outfolder="/home/models/ED_MET/"
+in.base="/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Downscaled_Outputs/WILLOWCREEK.v1/1hr/ensembles/"
+outfolder="../ED_Met/"
 if(!dir.exists(outfolder)) dir.create(outfolder, recursive = T)
 
 ed.order <- read.csv("ED_Run_Priority.csv")
