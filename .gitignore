@@ -2,3 +2,4 @@
 *.Rhistory
 data/*
 *.h5
+ED_MET_DRIVER_HEADER

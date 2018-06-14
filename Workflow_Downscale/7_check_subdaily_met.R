@@ -27,25 +27,24 @@ library(ggplot2)
 library(stringr)
 
 # Ensemble directories
-wd.base <- "/home/crollinson/met_ensemble"
+wd.base <- "/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/"
 # wd.base <- "~/Desktop/Research/met_ensembles/"
 site.name = "WILLOWCREEK"
 vers=".v1"
 site.lat  =  45.805822 # 45°48′21″N
 site.lon  = -90.079722 # 90°04′47″W
 
-path.dat <- file.path(wd.base, "data/met_ensembles", paste0(site.name, vers), "1hr/ensembles/")
-path.out <- file.path(wd.base, "data/met_ensembles", paste0(site.name, vers), "1hr/figures_qaqc")
+path.dat <- file.path(wd.base, "data/Downscaled_Outputs", paste0(site.name, vers), "1hr/ensembles/")
+path.out <- file.path(wd.base, "data/Downscaled_Outputs", paste0(site.name, vers), "1hr/figures_qaqc")
 
 dir.create(path.out, recursive=T, showWarnings = F)
 # GCM.list <- c("bcc-csm1-1", "CCSM4", "MIROC-ESM", "MPI-ESM-P")
-GCM.list <- c("bcc-csm1-1", "CCSM4", "MIROC-ESM")
 
-n.day <- 1 # How many parent ensembles we want to graph
+n.day <- 3 # How many parent ensembles we want to graph
 n.hr <- 3 # How many independent hourly ensembles we want to show
 
 # yrs.check <- c(2015, 1990, 1900, 1850, 1800, 1300, 1000, 850)
-yrs.check <- c(2015, 1985, 1920, 1875, 1800)
+yrs.check <- c(1999, 2004, 2009, 2014)
 # yrs.check <- 2015
 days.graph <- data.frame(winter=(45-3):(45+3), spring=(135-3):(135+3), summer=(225-3):(225+3), fall=(315-3):(315+3))
 
@@ -60,56 +59,53 @@ vars.short <- c("tair", "precip", "swdown", "lwdown", "press", "qair", "wind")
 # -----------------------------------
 met.plot <- list()
 dat.hr <- NULL
-for(GCM in GCM.list){
-  met.plot[[GCM]] <- list()
-  
-  # Get a list of the *unique* daily ensemble members and then randomly sample 
-  # *up to* n.day for plotting
-  ens.all <- dir(file.path(path.dat, GCM))
-  ens.names <- str_split(ens.all, "[.]")
-  ens.names <- matrix(unlist(ens.names), ncol=length(ens.names[[1]]), byrow=T)
-  parent.day <- unique(ens.names[,1])
-  
-  # Randomly picking up to n.day ensemble members for plotting
-  day.plot <- parent.day[sample(1:length(parent.day), min(length(parent.day), n.day))]
-  
-  # Extracting the hourly members
-  for(ens.day in day.plot){
-    # Get a list of the ensemble members
-    hr.all <- dir(file.path(path.dat, GCM), ens.day)
-    hr.plot <- hr.all[sample(1:length(hr.all), min(length(hr.all), n.hr))]
-    
-    # Extract our hourly info for the years we want and store in a dataframe
-    for(ens.now in hr.all){
-      for(yr in yrs.check){
-        nday <- ifelse(lubridate::leap_year(yr), 366, 365)
-        
-        nc.now <- dir(file.path(path.dat, GCM, ens.now), paste(yr))
-        if(length(nc.now)==0) next 
 
-        ncT <- ncdf4::nc_open(file.path(path.dat, GCM, ens.now, nc.now))
-        time.nc <- ncdf4::ncvar_get(ncT, "time")
-        
-        dat.temp <- data.frame(GCM=GCM, ens.day=ens.day, ens.hr=ens.now, year = yr, doy = rep(1:nday, each=24), hour=rep(seq(0.5, 24, by=1), nday))
-        dat.temp$date <- strptime(paste(dat.temp$year, dat.temp$doy, dat.temp$hour, sep="-"), format=("%Y-%j-%H"), tz="UTC")
-        
-        for(v in 1:length(vars.CF)){
-          dat.temp[,vars.CF[v]] <- ncdf4::ncvar_get(ncT, vars.CF[v])
-        }
-        nc_close(ncT)
-        dat.temp <- dat.temp[dat.temp$doy %in% unlist(days.graph),]
-        
-        if(is.null(dat.hr)){
-          dat.hr <- dat.temp
-        } else {
-          dat.hr <- rbind(dat.hr, dat.temp)
-        }
-        
+# Get a list of the *unique* daily ensemble members and then randomly sample 
+# *up to* n.day for plotting
+ens.all <- dir(file.path(path.dat))
+ens.names <- str_split(ens.all, "[.]")
+ens.names <- matrix(unlist(ens.names), ncol=length(ens.names[[1]]), byrow=T)
+parent.day <- unique(ens.names[,1])
+
+# Randomly picking up to n.day ensemble members for plotting
+day.plot <- parent.day[sample(1:length(parent.day), min(length(parent.day), n.day))]
+
+# Extracting the hourly members
+for(ens.day in day.plot){
+  # Get a list of the ensemble members
+  hr.all <- dir(path.dat, ens.day)
+  hr.plot <- hr.all[sample(1:length(hr.all), min(length(hr.all), n.hr))]
+  
+  # Extract our hourly info for the years we want and store in a dataframe
+  for(ens.now in hr.all){
+    for(yr in yrs.check){
+      nday <- ifelse(lubridate::leap_year(yr), 366, 365)
+      
+      nc.now <- dir(file.path(path.dat, ens.now), paste(yr))
+      if(length(nc.now)==0) next 
+
+      ncT <- ncdf4::nc_open(file.path(path.dat, ens.now, nc.now))
+      time.nc <- ncdf4::ncvar_get(ncT, "time")
+      
+      dat.temp <- data.frame(GCM="NLDAS_downscaled", ens.day=ens.day, ens.hr=ens.now, year = yr, doy = rep(1:nday, each=24), hour=rep(seq(0.5, 24, by=1), nday))
+      dat.temp$date <- strptime(paste(dat.temp$year, dat.temp$doy, dat.temp$hour, sep="-"), format=("%Y-%j-%H"), tz="UTC")
+      
+      for(v in 1:length(vars.CF)){
+        dat.temp[,vars.CF[v]] <- ncdf4::ncvar_get(ncT, vars.CF[v])
       }
+      nc_close(ncT)
+      dat.temp <- dat.temp[dat.temp$doy %in% unlist(days.graph),]
+      
+      if(is.null(dat.hr)){
+        dat.hr <- dat.temp
+      } else {
+        dat.hr <- rbind(dat.hr, dat.temp)
+      }
+      
     }
   }
-  
 }
+
 
 dim(dat.hr)
 # -----------------------------------
