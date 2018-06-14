@@ -65,9 +65,6 @@ do
 	SITE=${runID[FILE]}
 	echo $SITE
 
-	lat_now=${lat[FILE]}
-	lon_now=${lon[FILE]}
-
 	# -----------------------------------------------------------------------------
 	# What needs to change:
 	# 1. Met Header -- needs to go to specific GCM
