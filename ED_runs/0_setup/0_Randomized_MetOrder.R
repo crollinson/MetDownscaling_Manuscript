@@ -25,6 +25,7 @@ ed.runs2 <- data.frame(order=4:(3+length(ens.mems)), metEns=ens.mems, runID=past
 
 # Put the two lists together
 ed.runs <- rbind(ed.runs, ed.runs2)
+ed.runs$Status <- NA
 
 write.csv(ed.runs, file.path("ED_Run_Priority.csv"), row.names=F, eol = "\r\n")
 
