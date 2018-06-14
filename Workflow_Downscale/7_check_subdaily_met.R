@@ -40,8 +40,8 @@ path.out <- file.path(wd.base, "data/Downscaled_Outputs", paste0(site.name, vers
 dir.create(path.out, recursive=T, showWarnings = F)
 # GCM.list <- c("bcc-csm1-1", "CCSM4", "MIROC-ESM", "MPI-ESM-P")
 
-n.day <- 3 # How many parent ensembles we want to graph
-n.hr <- 3 # How many independent hourly ensembles we want to show
+n.day <- 5 # How many parent ensembles we want to graph
+n.hr <- 4 # How many independent hourly ensembles we want to show
 
 # yrs.check <- c(2015, 1990, 1900, 1850, 1800, 1300, 1000, 850)
 yrs.check <- c(1999, 2004, 2009, 2014)
@@ -105,8 +105,6 @@ for(ens.day in day.plot){
     }
   }
 }
-
-
 dim(dat.hr)
 # -----------------------------------
 
@@ -150,7 +148,7 @@ for(v in unique(dat.ens$ind)){
   for(yr in yrs.check[yrs.check %in% unique(dat.ens$year)]){
     print(
       ggplot(data=dat.ind[dat.ind$ind==v & dat.ind$year==yr,]) + facet_wrap(~season, scales="free_x") +
-        geom_line(aes(x=date, y=mean, color=ens.day, group=ens.hr)) +
+        geom_line(aes(x=date, y=mean, color=ens.day, group=ens.hr), size=0.25) +
         ggtitle(paste(v, yr, sep=" - "))
     )
   }
