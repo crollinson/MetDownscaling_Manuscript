@@ -60,8 +60,8 @@ $ED_NL
    ! RADFRQ -- Time step to integrate radiation, in seconds.  This must be an integer      !
    !            multiple of DTLSM, and we recommend it to be exactly the same as DTLSM.    !
    !---------------------------------------------------------------------------------------!
-   NL%DTLSM  =  540
-   NL%RADFRQ  = 540
+   NL%DTLSM  =  360
+   NL%RADFRQ  = 360
    !---------------------------------------------------------------------------------------!
 
 
@@ -413,7 +413,7 @@ $ED_NL
    !           into a single layer, so if you are running for places where it doesn't snow !
    !           a lot, leave this set to 1.  One value for all grids.                       ! 
    !---------------------------------------------------------------------------------------!
-   NL%NZG = 12
+   NL%NZG = 8
    NL%NZS = 4
    !---------------------------------------------------------------------------------------!
 
@@ -562,7 +562,7 @@ $ED_NL
    NL%LU_DATABASE      = '/home/models/ED_inputs/ed_inputs/glu/glu-'
    NL%PLANTATION_FILE  = ''
    NL%THSUMS_DATABASE  = '/home/models/ED_inputs/ed_inputs/'
-   NL%ED_MET_DRIVER_DB = '/dummy/path/PL_MET_HEADER'
+   NL%ED_MET_DRIVER_DB = '/met/path/ED_MET_DRIVER_HEADER'
    NL%SOILSTATE_DB     = '/home/models/ED_inputs/ed_inputs/STW1996OCT.dat'
    NL%SOILDEPTH_DB     = ''
    !---------------------------------------------------------------------------------------!
@@ -598,7 +598,7 @@ $ED_NL
    !            then lateral drainage becomes free drainage.  SLDRAIN must be between 0    !
    !            and 90.                                                                    !
    !---------------------------------------------------------------------------------------!
-   NL%SLDRAIN        = 10.
+   NL%SLDRAIN        = 90.
    !---------------------------------------------------------------------------------------!
 
 
@@ -637,7 +637,7 @@ $ED_NL
    !                       0.  Euler step.  The fastest, but it doesn't estimate           !
    !                           errors.                                                     !
    !                       1.  Fourth-order Runge-Kutta method.  ED-2.1 default method     !
-   !                       2.  Heun's method (a second-order Runge-Kutta).                 !
+   !                       2.  Heun's method (DEPRECATED ATM - DO NOT USE)
    !                       3.  Hybrid Stepping (BDF2 implicit step for the canopy air and  !
    !                           leaf temp, forward Euler for else, under development).      !
    !---------------------------------------------------------------------------------------!
@@ -692,6 +692,8 @@ $ED_NL
    !      correction for high and low temperatures are the same as in Moorcroft et al.     !
    !      (2001).                                                                          !
    ! 3 -- Same as 2, except that we find Gamma* as in Farquhar et al. (1980) and in CLM.   !
+   ! 4 -- Use "Arrhenius" function as in Harley et al. (1991). This has to be run with     !
+   !      ISTOMATA_SCHEME = 1                                                              !
    !---------------------------------------------------------------------------------------!
    NL%IPHYSIOL = 2
    !---------------------------------------------------------------------------------------!
@@ -734,7 +736,7 @@ $ED_NL
    !                                                                                       !
    ! 1: new grass scheme as described above                                                !
    !---------------------------------------------------------------------------------------!
-   NL%IGRASS          = 1
+   NL%IGRASS          = 0
    !---------------------------------------------------------------------------------------!
 
 
@@ -766,12 +768,17 @@ $ED_NL
    !     conifers  - evergreen;                                                            !
    !     hardwoods - cold-deciduous;                                                       !
    !                                                                                       !
+   !  4: grasses   - drought-deciduous (plant hydraulics);                                 !
+   !     tropical  - drought-deciduous (plant hydraulics;                                  !
+   !     conifers  - evergreen;                                                            !
+   !     hardwoods - cold-deciduous;                                                       !
+   !                                                                                       !
    !  Old scheme: plants shed their leaves once instantaneous amount of available water    !
    !              becomes less than a critical value.                                      !
    !  New scheme: plants shed their leaves once a 10-day running average of available      !
    !              water becomes less than a critical value.                                !
    !---------------------------------------------------------------------------------------!
-   NL%IPHEN_SCHEME    = 2     
+   NL%IPHEN_SCHEME    = 0     
    !---------------------------------------------------------------------------------------!
 
 
@@ -840,6 +847,7 @@ $ED_NL
    !                 shortwave and longwave.                                               !
    !                 0.  Original two-stream model (Medvigy 2006), with the possibility to !
    !                     apply finite crown area to direct shortwave radiation.            !
+   !                     (deprecated - disable opspec to use 0)                            !
    !                 1.  Multiple-scattering model (Zhao and Qualls 2005,2006), with the   !
    !                     possibility to apply finite crown area to all radiation fluxes.   !
    !                 2.  Updated two-stream model (Liou 2002), with the possibility to     !
@@ -865,15 +873,15 @@ $ED_NL
    !                 lim -> 0.  Black hole (0 itself is unacceptable)                      !
    !                        1.  Homogeneously spread over the layer (i.e., no clumping)    !
    !---------------------------------------------------------------------------------------!
-   NL%ICANRAD        =  1
-   NL%LTRANS_VIS     =  0.05
-   NL%LTRANS_NIR     =  0.2
-   NL%LREFLECT_VIS   =  0.1
-   NL%LREFLECT_NIR   =  0.4
-   NL%ORIENT_TREE    =  0.1
-   NL%ORIENT_GRASS   =  0
-   NL%CLUMP_TREE     =  0.8
-   NL%CLUMP_GRASS    =  1
+   NL%ICANRAD        =  2
+   NL%LTRANS_VIS     =  0.050
+   NL%LTRANS_NIR     =  0.230
+   NL%LREFLECT_VIS   =  0.100
+   NL%LREFLECT_NIR   =  0.460
+   NL%ORIENT_TREE    =  0.100
+   NL%ORIENT_GRASS   =  0.000
+   NL%CLUMP_TREE     =  0.800
+   NL%CLUMP_GRASS    =  1.000
    !---------------------------------------------------------------------------------------!
 
 
@@ -891,6 +899,10 @@ $ED_NL
    !                      function for soil moisture, which allows higher decomposition    !
    !                      rates when it is close to the optimal, plumetting when it is     !
    !                      almost saturated.                                                !
+   !                  3.  Similar to option 0. Uses empirical moisture limit equation from !
+   !                      Moyano et al., 2012, Biogeosciences.                             !
+   !                  4.  Similar to option 1. Uses empirical moisture limit equation from !
+   !                      Moyano et al., 2012, Biogeosciences.                             !
    !---------------------------------------------------------------------------------------!
    NL%DECOMP_SCHEME   = 2
    !---------------------------------------------------------------------------------------!
@@ -914,11 +926,65 @@ $ED_NL
    !                      where psi is the matric potentital at layer k, z is the layer    !
    !                      depth, H it the crown height and psi_fc and psi_wp are the       !
    !                      matric potentials at wilting point and field capacity.           !
+   !                  3.  Use leaf water potential to modify fsw following Powell et al.   !
+   !                      2017. Need to set PLANT_HYDRO_SCHEME to non-zero values          !
+   !                  4.  Use leaf water potential to modify Optimization-based stomatal   !
+   !                      model following Xu et al. 2016. Need to set PLANT_HYDRO_SCHEME   !
+   !                      to non-zero values and set ISTOMATA_SCHEME to 1.                 !
    !---------------------------------------------------------------------------------------!
    NL%H2O_PLANT_LIM   = 2
    !---------------------------------------------------------------------------------------!
 
 
+   !---------------------------------------------------------------------------------------!
+   !  PLANT_HYDRO_SCHEME -- Whether to track plant hydrodynamics.                          !
+   !                        0. No hydraulics (leaf and wood are always saturated)          ! 
+   !                        1. Track plant hydrodynamics using parameters from             !
+   !                           Christofferson et al. 2016 GMD                              !
+   !                        2. Track plant hydrodynamics using parameters from             !
+   !                           Xu et al. 2016 New Phytologist                              !
+   !                       -1. Same as 1 but leaf/wood heat capacity does not change       !
+   !                       -2. Same as 2 but leaf/wood heat capacity does not change       !
+   !---------------------------------------------------------------------------------------!
+   NL%PLANT_HYDRO_SCHEME   = 0
+   !---------------------------------------------------------------------------------------!
+
+   !---------------------------------------------------------------------------------------!
+   ! ISTRUCT_GROWTH_SCHEME -- Different methods to perform structural growth.              !
+   !                          0. Use all bstorage (default by ED2.2 and before)            !
+   !                          1. Reserve bstorage to reflush the whole canopy and          !
+   !                             fine roots once before calculating structural growth.     !
+   !                             This helps to give deciduous PFTs enough carbon to flush  !
+   !                             new leaves when growing season comes                      !
+   !---------------------------------------------------------------------------------------!
+   NL%ISTRUCT_GROWTH_SCHEME = 0
+   !---------------------------------------------------------------------------------------!
+
+   !---------------------------------------------------------------------------------------!
+   ! ISTOMATA_SCHEME -- Which stomatal conductance model to use.                           !
+   !                    0. Leuning (default by ED2.2 and before)                           !
+   !                    1. Katul's optimization based model (see Xu et al. 2016)           !
+   !---------------------------------------------------------------------------------------!
+   NL%ISTOMATA_SCHEME = 0
+   !---------------------------------------------------------------------------------------!
+
+   !---------------------------------------------------------------------------------------!
+   ! TRAIT_PLASTICITY_SCHEME -- Whether/How plant traits vary with local environment.      !
+   !                            0. No trait plasticity. Trait parameters for each PFT      !
+   !                               is fixed. (ED2.2 and before).                           !
+   !                            1. Vm0 and SLA change with cohort light environment based  !
+   !                               on Lloyld et al. 2010 Biogeosciences. For each cohort,  !
+   !                               Vm0 decreases and SLA increases with shading. The       !
+   !                               magnitude of changes is calcualted using overtopping    !
+   !                               LAI and corresponding extinction facotrs for each trait.!
+   !                               The traits for each cohort are updated every year.      !
+   !                               (Not applicable to grass PFTs)                          !
+   !                            2. Same as 1 but the traits are updated every month.       !
+   !                           -1. Same as 1 but use height to adjust SLA                  !
+   !                           -2. Same as 2 but use height to adjust SLA                  !
+   !---------------------------------------------------------------------------------------!
+   NL%TRAIT_PLASTICITY_SCHEME = 0
+   !---------------------------------------------------------------------------------------!
 
    !---------------------------------------------------------------------------------------!
    !  IDDMORT_SCHEME -- This flag determines whether storage should be accounted in the    !
@@ -929,21 +995,20 @@ $ED_NL
    !                         in negative carbon balance only when they run out of storage  !
    !                         and are still losing more carbon than gaining.                !
    !                                                                                       !
-   !  CBR_SCHEME     -- This flag determines which carbon stress scheme is used:	       !
-   !                    0 -- Single stress.  CBR = cb/cb_mlmax 				               !
-   !			             cb_mlmax is the carbon balance in full sun and no moisture    !
-   !			             limitation							                           !
-   !                    1 -- Co-limitation from light and moisture  			           !
-   !			             CBR_LIGHT = cb/cb_lightmax and CBR_MOIST = cb/cb_moistmax	   !
-   !			             CBR_LIGHT and CBR_MOIST are then weighted according to 	   !
-   !			             DDMORT_CONST (below)					                       !
-   !                    2 -- LeibigÕs Law of the Minimum Ñ Limitation from either light or !
-   !			             moisture depending on which is lower at a given point in time !
-   !			             CBR = cb/max(cb_lightmax, cb_moistmax)			               !
+   !  CBR_SCHEME     -- This flag determines which carbon stress scheme is used:           !
+   !                    0 -- Single stress. CBR = cb/cb_mlmax                              !
+   !                         cb_mlmax is the carbon balance in full sun and no moisture    !
+   !                         limitation                                                    !
+   !                    1 -- Co-limitation from light and moisture                         !
+   !                         CBR_LIGHT = cb/cb_lightmax and CBR_MOIST = cb/cb_moistmax     !
+   !                         CBR_LIGHT and CBR_MOIST are then weighted according to        !
+   !                         DDMORT_CONST (below)                                          !
+   !                    2 -- Leibig Style, i.e. limitation from either light or moisture   !
+   !                         depending on which is lower at a given point in time          !
+   !                         CBR = cb/max(cb_lightmax, cb_moistmax)                        !
    !                                                                                       !
-   !                                                                                       !
-   !  DDMORT_CONST   -- CBR_Scheme = 2 only                                                !
-   !			        This constant (k) determines the relative contribution of light    !
+   !  DDMORT_CONST   -- CBR_Scheme = 1 only                                                !
+   !                    This constant (k) determines the relative contribution of light    !
    !                    and soil moisture to the density-dependent mortality rate.  Values !
    !                    range from 0 (soil moisture only) to 1 (light only).               !
    !                                                                                       !
@@ -951,13 +1016,14 @@ $ED_NL
    !                  mu_DD = -------------------------                                    !
    !                            1 + exp [ mort2 * CBR ]                                    !
    !                                                                                       !
-   !                  1              DDMORT_CONST         1 - DDMORT_CONST                 !
-   !             ------------  =  ------------------  +  ------------------                !
-   !             CBR - CBR_SS     CBR_LIGHT - CBR_SS     CBR_MOIST - CBR_SS                !
+   !                1         DDMORT_CONST         1 - DDMORT_CONST                        !
+   !           ------------ = ------------------ + ------------------                      !
+   !           CBR - CBR_SS   CBR_LIGHT - CBR_SS   CBR_MOIST - CBR_SS                      !
+   !                                                                                       ! 
    !---------------------------------------------------------------------------------------!
    NL%IDDMORT_SCHEME  = 1
-   NL%CBR_SCHEME      = 0
    NL%DDMORT_CONST    = 0.9
+   NL%CBR_SCHEME      = 0
    !---------------------------------------------------------------------------------------!
 
 
@@ -1007,13 +1073,13 @@ $ED_NL
    NL%MPHOTO_TRC3     = 9.0
    NL%MPHOTO_TEC3     = 7.2
    NL%MPHOTO_C4       = 5.2
-   NL%BPHOTO_BLC3     = 10000
-   NL%BPHOTO_NLC3     = 1000
-   NL%BPHOTO_C4       = 10000
-   NL%KW_GRASS        = 900
-   NL%KW_TREE         = 600
+   NL%BPHOTO_BLC3     = 10000.
+   NL%BPHOTO_NLC3     = 1000.
+   NL%BPHOTO_C4       = 10000.
+   NL%KW_GRASS        = 900.
+   NL%KW_TREE         = 600.
    NL%GAMMA_C3        = 0.0145
-   NL%GAMMA_C4        = 0.035
+   NL%GAMMA_C4        = 0.0350
    NL%D0_GRASS        = 0.016
    NL%D0_TREE         = 0.016
    NL%ALPHA_C3        = 0.080
@@ -1041,7 +1107,7 @@ $ED_NL
    !                       ing point is by definition -1.5MPa, so make sure that the value !
    !                       is above -1.5.                                                  !
    !---------------------------------------------------------------------------------------!
-   NL%THETACRIT       = -1.2
+   NL%THETACRIT       = -1.20
    !---------------------------------------------------------------------------------------!
 
 
@@ -1110,8 +1176,8 @@ $ED_NL
    !                   past 12 months, to trigger fires.                                   !
    !---------------------------------------------------------------------------------------!
    NL%INCLUDE_FIRE    = 0
-   NL%FIRE_PARAMETER  = 0.33  ! There is No actual Fuel Threshold, so the default makes WAY too much fire
-   NL%SM_FIRE         = 0.005 ! Also lowering the Prevention threshold
+   NL%FIRE_PARAMETER  = 0.5
+   NL%SM_FIRE         = 0.07
    !---------------------------------------------------------------------------------------!
 
 
@@ -1144,7 +1210,7 @@ $ED_NL
    !             4.  Same as 0, but if finds the ground conductance following CLM          !
    !                 technical note (equations 5.98-5.100).                                !
    !---------------------------------------------------------------------------------------!
-   NL%ICANTURB        = 1
+   NL%ICANTURB        = 0
    !---------------------------------------------------------------------------------------!
 
 
@@ -1163,7 +1229,7 @@ $ED_NL
    ! 4.  CLM (2004).  Similar to 2 and 3, but they have special functions to deal with     !
    !     very stable and very stable cases.                                                !
    !---------------------------------------------------------------------------------------!
-   NL%ISFCLYRM        = 4
+   NL%ISFCLYRM        = 3
    !---------------------------------------------------------------------------------------!
 
 
@@ -1203,7 +1269,7 @@ $ED_NL
    NL%GAMH            = 13.0
    NL%TPRANDTL        = 0.74
    NL%RIBMAX          = 0.50
-   NL%LEAF_MAXWHC     = 0.00
+   NL%LEAF_MAXWHC     = 0.11
    !---------------------------------------------------------------------------------------!
 
 
@@ -1222,7 +1288,7 @@ $ED_NL
    !            2.  Soil conductivity decreases with depth even for constant soil moisture !
    !                , otherwise it is the same as 1.                                       !
    !---------------------------------------------------------------------------------------!
-   NL%IPERCOL         = 1
+   NL%IPERCOL         = 0
    !---------------------------------------------------------------------------------------!
 
 
@@ -1263,7 +1329,7 @@ $ED_NL
    !                  1.  Add the PFT in the INCLUDE_THESE_PFT list                        !
    !                  2.  Ignore the cohort                                                !
    !---------------------------------------------------------------------------------------!
-   NL%PFT_1ST_CHECK = 0
+   NL%PFT_1ST_CHECK = 1 
    !---------------------------------------------------------------------------------------!
 
 
@@ -1298,10 +1364,10 @@ $ED_NL
    !                   a site to be created (ignored if IED_INIT_MODE is set to 3).        !
    !---------------------------------------------------------------------------------------!
    NL%MAXSITE        =     1
-   NL%MAXPATCH       =    15
+   NL%MAXPATCH       =     6
    NL%MAXCOHORT      =    20
-   NL%MIN_SITE_AREA  = 0.01
-   NL%MIN_PATCH_AREA = 0.02
+   NL%MIN_SITE_AREA  = 0.005
+   NL%MIN_PATCH_AREA = 0.005
    !---------------------------------------------------------------------------------------!
 
 
@@ -1321,16 +1387,19 @@ $ED_NL
    ! TREEFALL_DISTURBANCE_RATE -- Sign-dependent treefall disturbance rate:                !
    !                              > 0. usual disturbance rate, in 1/years;                 !
    !                              = 0. No treefall disturbance;                            !
-   !                              < 0. Treefall will be added as a mortality rate (it      !
-   !                                   will kill plants, but it won't create a new patch). !
+   !                              < 0. (Tropical PFTs only, others will use the absolute   !
+   !                                   value instead).  Test for a new slope for density   !
+   !                                   independent mortality based on Kraft et al. (2010)  !
+   !                                   and Paracou data.  Absolute value will be used as   !
+   !                                   the base line rate for late successional trees.     !
    ! TIME2CANOPY               -- Minimum patch age for treefall disturbance to happen.    !
    !                              If TREEFALL_DISTURBANCE_RATE = 0., this value will be    !
    !                              ignored.  If this value is different than zero, then     !
    !                              TREEFALL_DISTURBANCE_RATE is internally adjusted so the  !
    !                              average patch age is still 1/TREEFALL_DISTURBANCE_RATE   !
    !---------------------------------------------------------------------------------------!
-   NL%TREEFALL_DISTURBANCE_RATE  = 0.000
-   NL%TIME2CANOPY                = 0.
+   NL%TREEFALL_DISTURBANCE_RATE  = 0.0
+   NL%TIME2CANOPY                = 0
    !---------------------------------------------------------------------------------------!
 
 
@@ -1341,7 +1410,7 @@ $ED_NL
    !                -folding lifetime" of the TSW in seconds due to runoff.  If you don't  !
    !                want runoff to happen, set this to 0.                                  !
    !---------------------------------------------------------------------------------------!
-   NL%RUNOFF_TIME    = 60
+   NL%RUNOFF_TIME    = 28800
    !---------------------------------------------------------------------------------------!
 
 
@@ -1356,9 +1425,9 @@ $ED_NL
    !  UGBMIN -- minimum wind speed at the leaf level                                [ m/s] !
    !  USTMIN -- minimum friction velocity, u*, in m/s.                              [ m/s] !
    !---------------------------------------------------------------------------------------!
-   NL%UBMIN          = 1.00
-   NL%UGBMIN         = 0.50
-   NL%USTMIN         = 0.25
+   NL%UBMIN          = 0.65
+   NL%UGBMIN         = 0.25
+   NL%USTMIN         = 0.05
    !---------------------------------------------------------------------------------------!
 
 
@@ -1425,15 +1494,15 @@ $ED_NL
    !                3.  Gloomy -- All radiation goes to diffuse.                           !
    !                4.  Sesame street -- all radiation goes to direct, except at night.    !
    ! INITIAL_CO2 -- Initial value for CO2 in case no CO2 is provided at the meteorological !
-   !                driver dataset [Units: µmol/mol]                                       !
+   !                driver dataset [Units: Âµmol/mol]                                       !
    !---------------------------------------------------------------------------------------!
    NL%IMETTYPE    = 1
    NL%ISHUFFLE    = 0
    NL%METCYC1     = 1999
    NL%METCYCF     = 2015
-   NL%IMETAVG     = 2
-   NL%IMETRAD     = 1
-   NL%INITIAL_CO2 = 279
+   NL%IMETAVG     = 3
+   NL%IMETRAD     = 0
+   NL%INITIAL_CO2 = 370
    !---------------------------------------------------------------------------------------!
 
 
@@ -1466,7 +1535,7 @@ $ED_NL
    !               simulation.                                                             !
    ! PHENPATH   -- path and prefix of the prescribed phenology data.                       !
    !---------------------------------------------------------------------------------------!
-   NL%IEDCNFGF   = 'PalEON_Phase2.v1.xml'
+   NL%IEDCNFGF   = ''
    NL%EVENT_FILE = ''
    !---------------------------------------------------------------------------------------!
 
@@ -1517,8 +1586,12 @@ $ED_NL
    !               photosynthesis and detailed output from the integrator, set IDETAILED   !
    !               to 6 (2 + 4).  Any combination of the above outputs is acceptable, al-  !
    !               though all but the last produce a sheer amount of txt files, in which   !
-   !               case you may want to look at variable PATCH_KEEP.  It is also a good    !
-   !               idea to set IVEGT_DYNAMICS to 0 when using the first five outputs.      !
+   !               case you may want to look at variable PATCH_KEEP.                       !
+   !                                                                                       !
+   !               IMPORTANT:  The first five options will only work for single site       !
+   !                           simulations, and it is strongly recommended to set          !
+   !                           IVEGT_DYNAMICS to 0.  These options generate tons of        !
+   !                           output, so don't try these options with long simulations.   !
    !                                                                                       !
    !                                                                                       !
    ! PATCH_KEEP -- This option will eliminate all patches except one from the initial-     !
@@ -1558,14 +1631,7 @@ $ED_NL
    !            the CAS from leaf, sapwooda, sapwoodb, and root sources, proportionally to !
    !            biomass.                                                                   !
    !---------------------------------------------------------------------------------------!
-!   NL%STORAGE_RESP_SCHEME = 0
-   !---------------------------------------------------------------------------------------!
-
-
-   !---------------------------------------------------------------------------------------!
-   ! IOPTINPT -- Optimization configuration. (Currently not used)                          !
-   !---------------------------------------------------------------------------------------!
-   NL%IOPTINPT = ''
+   NL%STORAGE_RESP_SCHEME = 0
    !---------------------------------------------------------------------------------------!
 $END
 !==========================================================================================!

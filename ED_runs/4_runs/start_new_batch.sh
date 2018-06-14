@@ -81,6 +81,7 @@ do
     newbase=${file_dir}/$SITE
     oldbase=${file_dir}/TEST
 	oldname=TESTinit
+	met_path=${met_base}/${met[FILE]}
 
 
 	file_path=${file_dir}/${SITE}/
@@ -94,20 +95,9 @@ do
 		cp ../../ED2IN_Base_MetManuscript ED2IN
 		cp ${setup_dir}PalEON_Phase2.v1.xml .
 		
-		if [[ "$SITE" == "NLDAS_raw" ]]
-		then
-			cp ${file_base}/0_setup/PL_MET_HEADER_NLDAS_RAW .
-		else
-			cp ${file_base}/0_setup/PL_MET_HEADER_HOURLY .
-		fi
-
-		# Make sure the file paths on the Met Header have been updated for the current file structure
-		# Update Met Header
-		### sed -i "s,$BU_base_spin,$file_base,g" ${file_base}/0_setup/PL_MET_HEADER
-	    sed -i "s,TEST,${SITE},g" PL_MET_HEADER #change site ID
-
 		# ED2IN Changes	    
 		sed -i "s,/dummy/path,${file_path},g" ED2IN # set the file path
+		sed -i "s,/met/path,${met_path},g" ED2IN # set the file path
 	    sed -i "s,TEST,${SITE},g" ED2IN #change site ID
 
 
@@ -115,15 +105,11 @@ do
 		# Note: spins require a different first script because they won't have any 
 		#       histo files to read
 		cp ${setup_dir}spawn_startloops_spinstart.sh .
-		cp ${setup_dir}sub_spawn_restarts_spinstart.sh .
 		sed -i "s/USER=.*/USER=${USER}/" spawn_startloops_spinstart.sh
 		sed -i "s/SITE=.*/SITE=${SITE}/" spawn_startloops_spinstart.sh 		
 		sed -i "s/finalyear=.*/finalyear=${finalfull}/" spawn_startloops_spinstart.sh 		
 	    sed -i "s,/dummy/path,${file_path},g" spawn_startloops_spinstart.sh # set the file path
 	    sed -i "s,sub_post_process.sh,sub_post_process_spininit.sh,g" spawn_startloops_spinstart.sh # set the file path
-	    sed -i "s,/dummy/path,${file_path},g" sub_spawn_restarts_spinstart.sh # set the file path
-	    sed -i "s,TEST,check_${SITE},g" sub_spawn_restarts_spinstart.sh # change job name
-        sed -i "s/h_rt=.*/h_rt=48:00:00/" sub_spawn_restarts_spinstart.sh # Sets the run time around what we should need
 
 		# spawn restarts changes
 		cp ${setup_dir}spawn_startloops.sh .
@@ -133,18 +119,12 @@ do
 		sed -i "s/finalyear=.*/finalyear=${finalfull}/" spawn_startloops.sh 		
 	    sed -i "s,/dummy/path,${file_path},g" spawn_startloops.sh # set the file path
 	    sed -i "s,sub_post_process.sh,sub_post_process_spininit.sh,g" spawn_startloops.sh # set the file path
-	    sed -i "s,/dummy/path,${file_path},g" sub_spawn_restarts.sh # set the file path
-	    sed -i "s,TEST,check_${SITE},g" sub_spawn_restarts.sh # change job name
-        sed -i "s/h_rt=.*/h_rt=48:00:00/" sub_spawn_restarts_spinstart.sh # Sets the run time around what we should need
 
 		# adjust integration step changes
 		cp ${setup_dir}adjust_integration_restart.sh .
 		cp ${setup_dir}sub_adjust_integration.sh .
 		sed -i "s/USER=.*/USER=${USER}/" adjust_integration_restart.sh
 		sed -i "s/SITE=.*/SITE=${SITE}/" adjust_integration_restart.sh 		
-	    sed -i "s,/dummy/path,${file_path},g" sub_adjust_integration.sh # set the file path
-	    sed -i "s,TEST,adjust_${SITE},g" sub_adjust_integration.sh # change job name
-        sed -i "s/h_rt=.*/h_rt=24:00:00/" sub_adjust_integration.sh # Sets the run time around what we should need
 		
 #  		sh spawn_startloops_spinstart.sh
 	popd	
