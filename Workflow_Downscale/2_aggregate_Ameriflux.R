@@ -39,10 +39,10 @@ site.name = "WILLOWCREEK"
 site.lat  =  45.805822 # 45°48′21″N
 site.lon  = -90.079722 # 90°04′47″W
 
-path.ldas <- file.path(path.google, "data/Raw_Inputs", site.name, "NLDAS")
-files.train <- dir(path.ldas, ".nc")
+path.raw <- file.path(path.google, "data/Raw_Inputs", site.name, "Ameriflux_WCr")
+files.train <- dir(path.raw, ".nc")
 
-outfolder <- file.path(path.google, "data/Raw_Inputs", site.name, "NLDAS_day")
+outfolder <- file.path(path.google, "data/Raw_Inputs", site.name, "Ameriflux_day")
 dir.create(outfolder, recursive=T)
 # -----------------------------------
 
@@ -79,7 +79,7 @@ for(i in 1:length(files.train)){
   dat.day <- list()
   
   # Open the file so we can query from it
-  ncT <- nc_open(file.path(path.ldas, files.train[i]))
+  ncT <- nc_open(file.path(path.raw, files.train[i]))
   
   # Extract som plot dimensions
   lat.nc <- ncvar_get(ncT, "latitude")
@@ -91,6 +91,7 @@ for(i in 1:length(files.train)){
   # Extract plot info & aggregate to daily resolution
   for(v in names(ncT$var)){
     dat.hr <- matrix(ncvar_get(ncT, v), ncol=nday)
+    if(v %in% c("air_temperature_max", "air_temperature_min")) next # Need to trackt his down, but I think this is the max/min for that hour
     if(v == "air_temperature"){
       dat.day[["air_temperature_minimum"]] <- apply(dat.hr, 2, min)
       dat.day[["air_temperature_maximum"]] <- apply(dat.hr, 2, max)
@@ -103,7 +104,7 @@ for(i in 1:length(files.train)){
       dat.day[[v]] <- apply(dat.hr, 2, mean)
     }
   }
-  
+
   # Create a daily .nc file for each year
   dim.lat <- ncdim_def(name='latitude', units='degree_north', vals=lat.nc, create_dimvar=TRUE)
   dim.lon <- ncdim_def(name='longitude', units='degree_east', vals=lon.nc, create_dimvar=TRUE)

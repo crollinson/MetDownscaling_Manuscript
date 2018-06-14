@@ -46,7 +46,7 @@ library(ggplot2)
 # library(tictoc)
 rm(list=ls())
 
-wd.base <- "/home/crollinson/met_ensemble/"
+wd.base <- "/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/"
 setwd(wd.base)
 
 site.name = "WILLOWCREEK"
@@ -54,11 +54,11 @@ vers=".v1"
 site.lat  =  45.805822 # 45°48′21″N
 site.lon  = -90.079722 # 90°04′47″W
 
-path.train <- file.path(wd.base, "data/paleon_sites", site.name, "NLDAS")
+path.train <- file.path(wd.base, "data/Raw_Inputs", site.name, "Ameriflux_WCr")
 yrs.train=NULL
 
-path.out <- file.path(wd.base, "data/met_ensembles", paste0(site.name, vers), "1hr/mods.tdm")
-path.pecan <- "/home/crollinson/pecan"
+path.out <- file.path(wd.base, "data/Downscaled_Outputs", paste0(site.name, vers), "1hr/mods.tdm")
+path.pecan <- "~/Desktop/Research/pecan"
 
 fig.dir <- file.path(path.out, "model_qaqc")
 
