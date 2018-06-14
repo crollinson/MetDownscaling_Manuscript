@@ -12,7 +12,7 @@ source("pecan_met_conversion/met2model.ED2.R")
 
 in.base="/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Raw_Inputs/WILLOWCREEK/"
 outfolder="/home/models/ED_MET/"
-if(!dir.exists(ourfolder)) dir.create(outfolder, recursive = T)
+if(!dir.exists(outfolder)) dir.create(outfolder, recursive = T)
 
 # Convert LDAS Raw
 met2model.ED2(in.path=file.path(in.base, "NLDAS"), 
