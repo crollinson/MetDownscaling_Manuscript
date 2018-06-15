@@ -307,7 +307,7 @@ met2model.ED2 <- function(in.path, in.prefix, outfolder, header_folder, start_da
     }
 
     ed_metheader <- list(list(
-      path_prefix = header_folder,
+      path_prefix = paste0(header_folder, "/"),
       nlon = 1,
       nlat = 1,
       dx = 1,
