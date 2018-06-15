@@ -11,8 +11,8 @@ source("pecan_met_conversion/met2model.ED2.R")
 
 
 in.base="/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Downscaled_Outputs/WILLOWCREEK.v1/1hr/ensembles/"
-outfolder="../ED_Met/"
-met.base="/home/models/ED_MET/WILLOWCREEK.v1"
+outfolder="../ED_MET.v2/"
+met.base="/home/models/ED_MET/WILLOWCREEK.v2"
 if(!dir.exists(outfolder)) dir.create(outfolder, recursive = T)
 
 ed.order <- read.csv("ED_Run_Priority.csv")

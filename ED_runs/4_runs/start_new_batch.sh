@@ -33,7 +33,7 @@
 # Define constants & file paths for the scripts
 file_base=~/MetDownscaling_Manuscript/ED_runs/ # whatever you want the base output file path to be
 EDI_base=/home/models/ED_inputs/ # The location of basic ED Inputs for you
-met_base=/home/models/ED_MET/WILLOWCREEK.v1
+met_base=/home/models/ED_MET/WILLOWCREEK.v2
 
 ed_exec=/home/models/ED2/ED/build/ed_2.1-opt # Location of the ED Executable
 file_dir=${file_base}/4_runs/ed_runs.v1/ # Where everything will go
