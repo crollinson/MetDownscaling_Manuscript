@@ -96,7 +96,7 @@ do
 		cp ${setup_dir}PalEON_Phase2.v1.xml .
 		
 		# ED2IN Changes	    
-		sed -i "s,/dummy/path,${file_path},g" ED2IN # set the file path
+		sed -i "s,/dummy/path,${file_dir},g" ED2IN # set the file path
 		sed -i "s,/met/path,${met_path},g" ED2IN # set the file path
 	    sed -i "s,TEST,${SITE},g" ED2IN #change site ID
 
@@ -113,7 +113,6 @@ do
 
 		# spawn restarts changes
 		cp ${setup_dir}spawn_startloops.sh .
-		cp ${setup_dir}sub_spawn_restarts.sh .
 		sed -i "s/USER=.*/USER=${USER}/" spawn_startloops.sh
 		sed -i "s/SITE=.*/SITE=${SITE}/" spawn_startloops.sh 		
 		sed -i "s/finalyear=.*/finalyear=${finalfull}/" spawn_startloops.sh 		
@@ -122,7 +121,6 @@ do
 
 		# adjust integration step changes
 		cp ${setup_dir}adjust_integration_restart.sh .
-		cp ${setup_dir}sub_adjust_integration.sh .
 		sed -i "s/USER=.*/USER=${USER}/" adjust_integration_restart.sh
 		sed -i "s/SITE=.*/SITE=${SITE}/" adjust_integration_restart.sh 		
 		
