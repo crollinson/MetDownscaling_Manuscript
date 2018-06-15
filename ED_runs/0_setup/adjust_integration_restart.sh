@@ -9,7 +9,7 @@
 USER=crolli # or whoever is in charge of this site
 SITE=latXXXlon-XXX # Site can be indexed off some file name
 finalyear=3011
-outdir=/home/crollinson/ED_PalEON/MIP2_Region/4_runs/phase2_runs.v1/
+outdir=/dummy/path/
 site_path=${outdir}${SITE}/
 
 months=(01 02 03 04 05 06 07 08 09 10 11 12 01 02)
@@ -47,8 +47,8 @@ fi
 
 sed -i "s/IMONTHZ  =.*/IMONTHZ  = ${finalmonth}/" ED2IN 
 sed -i "s/IYEARZ   =.*/IYEARZ   = ${finalyear}/" ED2IN 
-sed -i "s/DTLSM  =.*/DTLSM  = 320/" ED2IN 
-sed -i "s/RADFRQ  =.*/RADFRQ  = 320/" ED2IN 
+sed -i "s/DTLSM  =.*/DTLSM  = 360/" ED2IN 
+sed -i "s/RADFRQ  =.*/RADFRQ  = 360/" ED2IN 
 
 # Crank down the time needed for the adjust integration step
 #sed -i "s/h_rt=.*/h_rt=20:00:00/" paleon_ed2_smp_geo.sh # Sets the run time around what we should need
