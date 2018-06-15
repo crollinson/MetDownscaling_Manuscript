@@ -60,8 +60,8 @@ $ED_NL
    ! RADFRQ -- Time step to integrate radiation, in seconds.  This must be an integer      !
    !            multiple of DTLSM, and we recommend it to be exactly the same as DTLSM.    !
    !---------------------------------------------------------------------------------------!
-   NL%DTLSM  =  900
-   NL%RADFRQ  = 900
+   NL%DTLSM  =  450
+   NL%RADFRQ  = 450
    !---------------------------------------------------------------------------------------!
 
 
@@ -356,7 +356,7 @@ $ED_NL
    !
    !
    !---------------------------------------------------------------------------------------!
-   NL%IED_INIT_MODE   = 3 ! Will look for a .css & .pss file
+   NL%IED_INIT_MODE   = 2 ! Will look for a .css & .pss file
    !---------------------------------------------------------------------------------------!
 
 
