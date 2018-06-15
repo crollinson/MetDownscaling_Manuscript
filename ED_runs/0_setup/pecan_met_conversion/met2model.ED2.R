@@ -24,7 +24,7 @@
 #' @param overwrite should existing files be overwritten
 #' @param verbose should the function be very verbose
 #' @param leap_year Enforce Leap-years? If set to TRUE, will require leap years to have 366 days. If set to false, will require all years to have 365 days. Default = TRUE.
-met2model.ED2 <- function(in.path, in.prefix, outfolder, start_date, end_date, lst = 0, lat = NA,
+met2model.ED2 <- function(in.path, in.prefix, outfolder, header_folder, start_date, end_date, lst = 0, lat = NA,
                           lon = NA, overwrite = FALSE, verbose = FALSE, leap_year = TRUE, ...) {
   
   overwrite <- as.logical(overwrite)
@@ -307,7 +307,7 @@ met2model.ED2 <- function(in.path, in.prefix, outfolder, start_date, end_date, l
     }
 
     ed_metheader <- list(list(
-      path_prefix = met_folder,
+      path_prefix = header_folder,
       nlon = 1,
       nlat = 1,
       dx = 1,
