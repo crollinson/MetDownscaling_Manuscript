@@ -30,7 +30,6 @@ order,metEns,runID,start.year,end.year,Status
 29,NLDAS_downscaled_005.06,TDM_005.06,1999,2014,
 30,NLDAS_downscaled_006.07,TDM_006.07,1999,2014,
 31,NLDAS_downscaled_007.09,TDM_007.09,1999,2014,
-32,Icon,TDM_downscaled,1999,2014,
 33,NLDAS_downscaled_010.05,TDM_downscaled,1999,2014,
 34,NLDAS_downscaled_003.07,TDM_downscaled,1999,2014,
 35,NLDAS_downscaled_007.08,TDM_downscaled,1999,2014,

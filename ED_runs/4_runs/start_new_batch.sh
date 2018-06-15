@@ -47,7 +47,7 @@ site_file=${setup_dir}/ED_Run_Priority.csv # # Path to list of ED sites w/ statu
 
 finalyear=2015
 finalfull=2014
-n=1
+n=2
 
 # Making the file directory if it doesn't already exist
 mkdir -p $file_dir
