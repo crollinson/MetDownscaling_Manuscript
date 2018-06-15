@@ -57,7 +57,7 @@ path.pecan <- "~/Desktop/Research/pecan"
 
 # Hard-coding numbers for Harvard
 site.name = "WILLOWCREEK"
-vers=".v1"
+vers=".v2"
 site.lat  =  45.805822 # 45°48′21″N
 site.lon  = -90.079722 # 90°04′47″W
 # 

@@ -31,11 +31,9 @@ path.pecan <- "~/Desktop/Research/pecan"
 
 # Site name for indexing
 site.name = "WILLOWCREEK"
-vers=".v1"
+vers=".v2"
 site.lat  =  45.805822 # 45°48′21″N
 site.lon  = -90.079722 # 90°04′47″W
-
-GCM.list <- c("bcc-csm1-1", "CCSM4", "MIROC-ESM", "MPI-ESM-P")
 
 # Setting up some file paths, etc
 path.raw.base <- file.path(wd.base, "data/Raw_Inputs", site.name)
@@ -182,7 +180,7 @@ png(file.path(path.day.base, "Raw_Annual.png"), height=8, width=10, units="in", 
 print(
   ggplot(data=met.raw.yr[,]) + facet_wrap(~met.var, scales="free_y") +
     geom_line(aes(x=Year, y=raw, color=dataset), size=0.5) +
-    # geom_vline(xintercept=c(1850, 1901, 2010), linetype="dashed") +
+    geom_vline(xintercept=c(2009), linetype="dashed") +
     scale_x_continuous(expand=c(0,0)) +
     scale_color_manual(values=c("black", "red")) +
     theme_bw()
@@ -195,7 +193,7 @@ print(
     geom_line(data=met.raw.yr[met.raw.yr$dataset=="Ameriflux",],aes(x=Year, y=raw, color=dataset), size=0.5) +
     geom_ribbon(aes(x=Year, ymin=lwr, ymax=upr, fill=dataset), alpha=0.5) +
     geom_line(aes(x=Year, y=mean, color=dataset), size=0.5) +
-    # geom_vline(xintercept=c(1850, 1901, 2010), linetype="dashed") +
+    geom_vline(xintercept=c(2009), linetype="dashed") +
     scale_x_continuous(expand=c(0,0)) +
     guides(fill=F) +
     scale_color_manual(values=c("black", "red")) +

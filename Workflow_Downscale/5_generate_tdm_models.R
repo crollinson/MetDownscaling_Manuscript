@@ -50,12 +50,12 @@ wd.base <- "/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/"
 setwd(wd.base)
 
 site.name = "WILLOWCREEK"
-vers=".v1"
+vers=".v2"
 site.lat  =  45.805822 # 45°48′21″N
 site.lon  = -90.079722 # 90°04′47″W
 
 path.train <- file.path(wd.base, "data/Raw_Inputs", site.name, "Ameriflux_WCr")
-yrs.train=NULL
+yrs.train=1999:2008
 
 path.out <- file.path(wd.base, "data/Downscaled_Outputs", paste0(site.name, vers), "1hr/mods.tdm")
 path.pecan <- "~/Desktop/Research/pecan"
@@ -78,7 +78,7 @@ source(file.path(path.pecan, "modules/data.atmosphere/R", "tdm_model_train.R"))
 source(file.path(path.pecan, "modules/data.atmosphere/R", "align_met.R"))
 
 gen.subdaily.models(outfolder=path.out, path.train=path.train,
-                    yrs.train=NULL, direction.filter="forward", in.prefix=site.name,
+                    yrs.train=1999:2008, direction.filter="forward", in.prefix=site.name,
                     n.beta=1000, day.window=7, seed=1026, resids = FALSE, 
                     parallel = FALSE, n.cores = NULL, overwrite = TRUE, verbose = FALSE, print.progress=T) 
 # ------------------------------------------

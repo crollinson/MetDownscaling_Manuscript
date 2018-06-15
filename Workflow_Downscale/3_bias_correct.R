@@ -50,7 +50,7 @@ path.pecan <- "~/Desktop/Research/pecan"
 
 # Defining a site name -- this can go into a function later
 site.name = "WILLOWCREEK"
-vers=".v1"
+vers=".v2"
 site.lat  =  45.805822 # 45°48′21″N
 site.lon  = -90.079722 # 90°04′47″W
 
@@ -90,7 +90,7 @@ source.path <- file.path(raw.base, "NLDAS_day")
 
 # We're now pulling an ensemble because we've set up the file paths and copied LDAS over 
 # (even though all ensemble members will be identical here)
-met.out <- align.met(train.path, source.path, yrs.train=NULL, yrs.source=NULL, n.ens=n.ens, seed=201708, pair.mems = FALSE, mems.train=paste(ens.ID, ens.mems, sep="_"))
+met.out <- align.met(train.path, source.path, yrs.train=1999:2008, yrs.source=NULL, n.ens=n.ens, seed=201708, pair.mems = FALSE, mems.train=paste(ens.ID, ens.mems, sep="_"))
 
 # Calculate wind speed if it's not already there
 # Note: right now only set up to do total windspeed and not north/east components

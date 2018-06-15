@@ -30,7 +30,7 @@ library(stringr)
 wd.base <- "/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/"
 # wd.base <- "~/Desktop/Research/met_ensembles/"
 site.name = "WILLOWCREEK"
-vers=".v1"
+vers=".v2"
 site.lat  =  45.805822 # 45°48′21″N
 site.lon  = -90.079722 # 90°04′47″W
 
