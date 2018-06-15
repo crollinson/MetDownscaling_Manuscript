@@ -383,7 +383,7 @@ $ED_NL
    !              path+prefix will be used, as the history for every grid must have come   !
    !              from the same simulation.                                                !
    !---------------------------------------------------------------------------------------!
-   NL%SFILIN   = '/home/crollinson/MetDownscaling_Manuscript/ED_runs/0_setup/US-WCr.Inv.lat45.5lon-90.5'
+   NL%SFILIN   = '/dummy/path/../../0_setup/US-WCr.Inv.lat45.5lon-90.5'
    !---------------------------------------------------------------------------------------!
 
 
