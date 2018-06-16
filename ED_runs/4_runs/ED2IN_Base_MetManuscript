@@ -60,8 +60,8 @@ $ED_NL
    ! RADFRQ -- Time step to integrate radiation, in seconds.  This must be an integer      !
    !            multiple of DTLSM, and we recommend it to be exactly the same as DTLSM.    !
    !---------------------------------------------------------------------------------------!
-   NL%DTLSM  =  450
-   NL%RADFRQ  = 450
+   NL%DTLSM  =  360
+   NL%RADFRQ  = 360
    !---------------------------------------------------------------------------------------!
 
 
@@ -1499,7 +1499,7 @@ $ED_NL
    NL%IMETTYPE    = 1
    NL%ISHUFFLE    = 0
    NL%METCYC1     = 1999
-   NL%METCYCF     = 2015
+   NL%METCYCF     = 2014
    NL%IMETAVG     = 3
    NL%IMETRAD     = 0
    NL%INITIAL_CO2 = 370
