@@ -10,7 +10,7 @@ source(file.path(path.pecan, "models/ed/R/check_ed_metheader.R"))
 source("pecan_met_conversion/met2model.ED2.R")
 
 
-in.base="/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Downscaled_Outputs/WILLOWCREEK.v1/1hr/ensembles/"
+in.base="/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Downscaled_Outputs/WILLOWCREEK.v2/1hr/ensembles/NLDAS"
 outfolder="../ED_MET.v2/"
 met.base="/home/models/ED_MET/WILLOWCREEK.v2"
 if(!dir.exists(outfolder)) dir.create(outfolder, recursive = T)

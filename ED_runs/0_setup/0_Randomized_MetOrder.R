@@ -1,7 +1,7 @@
 # Generate a randomized priority list for Forward Runs
 set.seed(1535)
 site.name = "WILLOWCREEK"
-vers=".v1"
+vers=".v2"
 site.lat  = 43.2309
 site.lon  = -74.5267
 
@@ -13,8 +13,9 @@ ed.runs <- data.frame(order=1:3, metEns=c("NLDAS_raw", rep("Ameriflux_raw", 2)),
                       end.year = c(2014, 2008, 2004))
 
 # Generate a list of all the hourly downscaled ensemble members we have
-path.1hr <- "/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Downscaled_Outputs/WILLOWCREEK.v1/1hr/ensembles/"
+path.1hr <- "/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/data/Downscaled_Outputs/WILLOWCREEK.v2/1hr/ensembles/NLDAS"
 ens.mems <- dir(path.1hr)
+ens.mems <- ens.mems[!ens.mems=="Icon\r"]
 
 # Randomizing the ensemble members
 set.seed(06141357) # Makes sure that every time we run this we keep our order
