@@ -81,7 +81,7 @@ do
     newbase=${file_dir}/$SITE
     oldbase=${file_dir}/TEST
 	oldname=TESTinit
-	met_path=${met_base}/${met[FILE]}
+	met_path=${met_base}/${SITE}
 
 
 	file_path=${file_dir}/${SITE}/
