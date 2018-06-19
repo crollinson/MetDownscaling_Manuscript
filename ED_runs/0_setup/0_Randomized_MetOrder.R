@@ -31,5 +31,5 @@ ed.runs$runID <- as.character(ed.runs$runID)
 summary(ed.runs)
 ed.runs$Status <- ""
 
-write.csv(ed.runs, file.path("ED_Run_Priority.csv"), row.names=F, eol = "\r\n", quote = F)
+write.csv(ed.runs, file.path("ED_Run_Priority.csv"), row.names=F, quote = F, fileEncoding="utf8")
 
