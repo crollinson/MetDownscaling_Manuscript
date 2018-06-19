@@ -1,7 +1,7 @@
 # -----------------------------------
 # Script Information
 # -----------------------------------
-# Purpose: Aggregate NLDAS dataset to daily resolution for use in bias correction
+# Purpose: Aggregate Ameriflux dataset to daily resolution for use in bias correction
 # Creator: Christy Rollinson, 1 July 2016
 # Contact: crollinson@gmail.com
 # -----------------------------------
@@ -49,7 +49,7 @@ dir.create(outfolder, recursive=T)
 # -----------------------------------
 # 1. generate a daily training dataset to get us started
 # 
-# this will end up being a 1-member "ensemble" of the NLDAS dataset
+# this will end up being a 1-member "ensemble" of the Ameriflux dataset
 # -----------------------------------
 
 df.var <- data.frame(CF.name = c("air_temperature", "air_temperature_maximum", "air_temperature_minimum", 
@@ -116,7 +116,7 @@ for(i in 1:length(files.train)){
     var.list[[v]] = ncvar_def(name=v, units=as.character(nc.info[nc.info$CF.name==v, "units"]), dim=nc.dim, missval=-999, verbose=F)
   }
   
-  loc.file <- file.path(outfolder, paste("NLDAS_day", str_pad(yr.now, width=4, side="left",  pad="0"), "nc", sep = "."))
+  loc.file <- file.path(outfolder, paste("Ameriflux_day", str_pad(yr.now, width=4, side="left",  pad="0"), "nc", sep = "."))
   loc <- nc_create(filename = loc.file, vars = var.list, verbose = F)
   
   for (v in names(dat.day)) {

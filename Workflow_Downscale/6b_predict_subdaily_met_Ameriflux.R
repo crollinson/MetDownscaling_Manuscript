@@ -64,11 +64,11 @@ site.lon  = -90.079722 # 90°04′47″W
 
 path.train <- file.path(wd.base, "data/Raw_Inputs", site.name, "Ameriflux_WCr")
 path.lm <- file.path(dat.base, "Downscaled_Outputs", paste0(site.name, vers), "1hr/mods.tdm")
-path.in <- file.path(dat.base, "Downscaled_Outputs", paste0(site.name, vers), "day/ensembles")
-path.out <- file.path(dat.base, "Downscaled_Outputs", paste0(site.name, vers), "1hr/ensembles/NLDAS")
+path.in <- file.path(wd.base, "data/Raw_Inputs", site.name)
+path.out <- file.path(dat.base, "Downscaled_Outputs", paste0(site.name, vers), "1hr/ensembles/Ameriflux")
 
-ens.hr  <- 10 # Number of hourly ensemble members to create
-n.day <- 10 # Number of daily ensemble members to process
+ens.hr  <- 30 # Number of hourly ensemble members to create
+n.day <- 1 # Number of daily ensemble members to process
 # yrs.plot <- c(2015, 1985, 1920, 1875, 1800, 1000, 850)
 yrs.plot <- c(1999, 2004, 2009, 2014)
 timestep="1hr"
@@ -99,35 +99,15 @@ if(!dir.exists(path.out)) dir.create(path.out, recursive=T)
 GCM="NLDAS_downscaled"
 # tic()
 # Set the directory where the output is & load the file
+ens.done <- vector()
 path.gcm <- file.path(path.in)
 
 out.ens <- file.path(path.out)
 
 # Doing this one ensemble member at at time
-# Figure out what's been done already
-ens.done <- str_split(dir(out.ens), "[.]")
-if(length(ens.done)>0) ens.done <- unique(matrix(unlist(ens.done), ncol=length(ens.done[[1]]), byrow = T)[,1])
-
-# Figure out what we can pull from
-gcm.members <- dir(path.gcm)
-if(length(ens.done)>0) gcm.members <- gcm.members[!gcm.members %in% ens.done]
-
-gcm.now <- sample(gcm.members, min(n.day, length(gcm.members)))
-
-if(parallel==TRUE & length(gcm.now)>1){
-  mclapply(gcm.now, predict_subdaily_met, mc.cores=min(length(gcm.now), cores.max),
-           outfolder=out.ens, in.path=file.path(path.in), 
-           lm.models.base=path.lm, path.train=path.train, direction.filter="forward",
-           yrs.predict=yrs.sim, ens.labs=str_pad(1:ens.hr, width=2, pad="0"),
-           resids=F, overwrite=F,
-           seed=seed.vec[length(ens.done)+1], print.progress=F)
-} else {
-  for(ens.now in gcm.now){
-    predict_subdaily_met(outfolder=out.ens, in.path=file.path(path.in),
-                         in.prefix=ens.now, lm.models.base=path.lm,
-                         path.train=path.train, direction.filter="forward", yrs.predict=yrs.sim,
-                         ens.labs = str_pad(1:ens.hr, width=2, pad="0"), resids = FALSE,
-                         overwrite = FALSE, seed=seed.vec[length(ens.done)+1], print.progress = TRUE)
-  }
-}
+predict_subdaily_met(outfolder=out.ens, in.path=file.path(path.in),
+                     in.prefix="Ameriflux_day", lm.models.base=path.lm,
+                     path.train=path.train, direction.filter="forward", yrs.predict=yrs.sim,
+                     ens.labs = str_pad(1:ens.hr, width=2, pad="0"), resids = FALSE,
+                     overwrite = FALSE, seed=seed.vec[length(ens.done)+1], print.progress = TRUE)
 # -----------------------------------
