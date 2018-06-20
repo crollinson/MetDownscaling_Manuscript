@@ -3,3 +3,4 @@
 data/*
 *.h5
 ED_MET_DRIVER_HEADER
+ED_runs/4_runs/ed_runs.v1/*
