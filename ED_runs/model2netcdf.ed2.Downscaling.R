@@ -184,69 +184,40 @@ read_I_files <- function(yr, yfiles, tfiles, outdir, start_date, end_date, ...){
   print(paste0("*** Reading -I- file ***"))
   
   # add
-  add <- function(dat, col, row, year) {
-    ## data is always given for whole year, except it will start always at 0
-    ## the left over data is filled with 0's
-    if (year == strftime(start_date, "%Y")) {
-      start <- (as.numeric(strftime(start_date, "%j")) - 1) * block
-    } else {
-      start <- 0
-    }
-    if (year == strftime(end_date, "%Y")) {
-      end <- as.numeric(strftime(end_date, "%j")) * block
-    } else {
-      end <- as.numeric(strftime(paste0(year, "-12-31"), "%j")) * block
-    }
+  add <- function(dat, col) {
     
     dims <- dim(dat)
+    
     if (is.null(dims)) {
       if (length(dat) == 1) {
         if (length(out) < col) {
-          out[[col]] <- array(dat, dim = (end - start))
+          out[[col]] <- array(dat, dim = 1)
         } else {
-          if (start != 0) {
-            warning("start date is not 0 this year, but data already exists in this col", 
-                                      col, "how is this possible?")
-          }
-          out[[col]] <- abind::abind(out[[col]], array(dat, dim = (end - start)), along = 1)
+          out[[col]] <- abind::abind(out[[col]], array(dat, dim = 1), along = 1)
         }
       } else {
         warning("expected a single value")
       }
-    } else if (length(dims) == 1) {
-      dat <- dat[1:(end - start)]
-      if (length(out) < col) {
-        out[[col]] <- dat
+    } else if(length(dims)==1){
+      if(length(out) < col){
+        out[[col]] <- array(dat)
       } else {
-        if (start != 0) {
-          warning("start date is not 0 this year, but data already exists in this col", 
-                                    col, "how is this possible?")
-        }
-        out[[col]] <- abind::abind(out[[col]], dat, along = 1)
+        out[[col]] <- cbind(out[[col]], array(dat))
       }
-    } else if (length(dims) == 2) {
+    } else if (length(dims)==2) {
       dat <- t(dat)
       dims <- dim(dat)
-      dat <- dat[1:(end - start), ]
+      # dat <- dat[1:(nrow(dat)), ]
       if (length(out) < col) {
         out[[col]] <- dat
       } else {
-        if (start != 0) {
-          warning("start date is not 0 this year, but data already exists in this col", 
-                                    col, "how is this possible?")
-        }
         out[[col]] <- abind::abind(out[[col]], dat, along = 1)
       }
     } else {
-      # PEcAn.logger::logger.debug("-------------------------------------------------------------")
-      # PEcAn.logger::logger.debug("col=", col)
-      # PEcAn.logger::logger.debug("length=", length(dat))
-      # PEcAn.logger::logger.debug("start=", start)
-      # PEcAn.logger::logger.debug("end=", end)
-      # PEcAn.logger::logger.debug("dims=", dims)
-      # PEcAn.logger::logger.warn("Don't know how to handle larger arrays yet.")
+      stop("can't handle arrays with >2 dimensions yet")
     }
-    
+    return(out)
+  
     ## finally make sure we use -999 for invalid values
     out[[col]][is.null(out[[col]])] <- -999
     out[[col]][is.na(out[[col]])] <- -999
@@ -288,6 +259,7 @@ read_I_files <- function(yr, yfiles, tfiles, outdir, start_date, end_date, ...){
   row <- 1
   
   # note that there is always one Tower file per year
+  ## ## NEED TO SET THIS UP TO LOOP THROUGH YSEL!
   ncT <- ncdf4::nc_open(file.path(outdir, tfiles[ysel]))
   
   ## determine timestep from HDF5 file
@@ -314,23 +286,21 @@ read_I_files <- function(yr, yfiles, tfiles, outdir, start_date, end_date, ...){
   
   if (!is.null(ED2vc)) {
     ## out <- add(getHdf5Data(ncT, 'TOTAL_AGB,1,row, yr) ## AbvGrndWood
-    out[["AbvGrndWood"]] <- add(getHdf5Data(ncT, "FMEAN_BDEAD_PY"), 1, row, yr)  ## AbvGrndWood
-    out[["AutoResp"   ]] <- add(getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 2, row, yr)  ## AutoResp
-    out[["CarbPools"  ]] <- add(-999, 3, row, yr)  ## CarbPools
-    out[["CO2CAS"     ]] <- add(getHdf5Data(ncT, "FMEAN_CAN_CO2_PY"), 4, row, yr)  ## CO2CAS
-    out[["CropYield"  ]] <- add(-999, 5, row, yr)  ## CropYield
-    out[["GPP"        ]] <- add(getHdf5Data(ncT, "FMEAN_GPP_PY"), 6, row, yr)  ## GPP
-    out[["HeteroResp" ]] <- add(getHdf5Data(ncT, "FMEAN_RH_PY"), 7, row, yr)  ## HeteroResp
+    out[["AbvGrndWood"]] <- add(getHdf5Data(ncT, "FMEAN_BDEAD_PY"), 1)  ## AbvGrndWood
+    out[["AutoResp"   ]] <- add(getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 2)  ## AutoResp
+    out[["CarbPools"  ]] <- add(-999, 3)  ## CarbPools
+    out[["CO2CAS"     ]] <- add(getHdf5Data(ncT, "FMEAN_CAN_CO2_PY"), 4)  ## CO2CAS
+    out[["CropYield"  ]] <- add(-999, 5)  ## CropYield
+    out[["GPP"        ]] <- add(getHdf5Data(ncT, "FMEAN_GPP_PY"), 6)  ## GPP
+    out[["HeteroResp" ]] <- add(getHdf5Data(ncT, "FMEAN_RH_PY"), 7)  ## HeteroResp
     out[["NEE"        ]] <- add(-getHdf5Data(ncT, "FMEAN_GPP_PY") + getHdf5Data(ncT, "FMEAN_PLRESP_PY") + 
-                                  getHdf5Data(ncT, "FMEAN_RH_PY"), 8, row, yr)  ## NEE
-    out[["NPP"        ]] <- add(getHdf5Data(ncT, "FMEAN_GPP_PY") - getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 
-                                9, row, yr)  ## NPP
-    out[["TotalResp"  ]] <- add(getHdf5Data(ncT, "FMEAN_RH_PY") + getHdf5Data(ncT, "FMEAN_PLRESP_PY"),
-                                10, row, yr)  ## TotalResp
+                                  getHdf5Data(ncT, "FMEAN_RH_PY"), 8)  ## NEE
+    out[["NPP"        ]] <- add(getHdf5Data(ncT, "FMEAN_GPP_PY") - getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 9)  ## NPP
+    out[["TotalResp"  ]] <- add(getHdf5Data(ncT, "FMEAN_RH_PY") + getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 10)  ## TotalResp
     # out <- add(getHdf5Data(ncT, 'BDEAD + getHdf5Data(ncT, 'BALIVE'),11,row, yr) ## TotLivBiom
-    out[["TotLivBiom" ]] <- add(-999, 11, row, yr)  ## TotLivBiom
+    out[["TotLivBiom" ]] <- add(-999, 11)  ## TotLivBiom
     out[["TotSoilCarb"]] <- add(getHdf5Data(ncT, "FAST_SOIL_C_PY") + getHdf5Data(ncT, "STRUCT_SOIL_C_PY") + 
-                                  getHdf5Data(ncT, "SLOW_SOIL_C_PY"), 12, row, yr)  ## TotSoilCarb
+                                  getHdf5Data(ncT, "SLOW_SOIL_C_PY"), 12)  ## TotSoilCarb
     
     ## depth from surface to frozen layer
     tdepth <- 0
@@ -397,20 +367,21 @@ read_I_files <- function(yr, yfiles, tfiles, outdir, start_date, end_date, ...){
       }
     }
     
-    out[["Fdepth"   ]] <- add(fdepth, 13, row, yr)  ## Fdepth
-    out[["SnowDepth"]] <- add(getHdf5Data(ncT, "FMEAN_SFCW_DEPTH_PY"), 14, row, yr)  ## SnowDepth (ED2 currently groups snow in to surface water)
-    out[["SnowFrac" ]] <- add(1 - getHdf5Data(ncT, "FMEAN_SFCW_FLIQ_PY"), 15, row, yr)  ## SnowFrac (ED2 currently groups snow in to surface water)
-    out[["Tdepth"   ]] <- add(tdepth, 16, row, yr)  ## Tdepth
-    out[["CO2air"   ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_CO2_PY"), 17, row, yr)  ## CO2air
-    out[["Lwdown"   ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_RLONG_PY"), 18, row, yr)  ## Lwdown
-    out[["Psurf"    ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_PRSS_PY"), 19, row, yr)  ## Psurf
-    out[["Qair"     ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_SHV_PY"), 20, row, yr)  ## Qair
-    out[["Rainf"    ]] <- add(getHdf5Data(ncT, "FMEAN_PCPG_PY"), 21, row, yr)  ## Rainf
+    out[["Fdepth"     ]] <- add(fdepth, 13, row, yr)  ## Fdepth
+    out[["SnowDepth"  ]] <- add(getHdf5Data(ncT, "FMEAN_SFCW_DEPTH_PY"), 14, row, yr)  ## SnowDepth (ED2 currently groups snow in to surface water)
+    out[["SnowFrac"   ]] <- add(1 - getHdf5Data(ncT, "FMEAN_SFCW_FLIQ_PY"), 15, row, yr)  ## SnowFrac (ED2 currently groups snow in to surface water)
+    out[["Tdepth"     ]] <- add(tdepth, 16, row, yr)  ## Tdepth
+    out[["CO2air"     ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_CO2_PY"), 17, row, yr)  ## CO2air
+    out[["Lwdown"     ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_RLONG_PY"), 18, row, yr)  ## Lwdown
+    out[["Psurf"      ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_PRSS_PY"), 19, row, yr)  ## Psurf
+    out[["Qair"       ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_SHV_PY"), 20, row, yr)  ## Qair
+    out[["Rainf"      ]] <- add(getHdf5Data(ncT, "FMEAN_PCPG_PY"), 21, row, yr)  ## Rainf
     out[["Swdown"     ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_PAR_PY"), 22, row, yr)  ## Swdown
     out[["Tair"       ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_TEMP_PY"), 23, row, yr)  ## Tair
     out[["Wind"       ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_VELS_PY"), 24, row, yr)  ## Wind
     out[["LWnet"      ]] <- add(getHdf5Data(ncT, 'FMEAN_ATM_RLONG_PY')-getHdf5Data(ncT, 'FMEAN_RLONGUP_PY'), 25, row, yr) ## Lwnet
-    out[["Qg"         ]] <- add(getHdf5Data(ncT, 'FMEAN_SENSIBLE_GG_PY') + getHdf5Data(ncT,'FMEAN_VAPOR_GC_PY')*2272000, 26, row, yr) ## Qg
+    # out[["Qg"         ]] <- add(apply(getHdf5Data(ncT, 'FMEAN_SENSIBLE_GG_PY'),2,sum) + getHdf5Data(ncT,'FMEAN_VAPOR_GC_PY')*2272000, 26, row, yr) ## Qg
+    out[["Qg"         ]] <- add(-999, 26, row, yr)  ## Qg
     out[["Qh"         ]] <- add(getHdf5Data(ncT, "FMEAN_SENSIBLE_AC_PY"), 27, row, yr)  ## Qh
     out[["Qle"        ]] <- add(getHdf5Data(ncT, "FMEAN_VAPOR_LC_PY") + getHdf5Data(ncT, "FMEAN_VAPOR_WC_PY") +
                                   getHdf5Data(ncT, "FMEAN_VAPOR_GC_PY") + getHdf5Data(ncT, "FMEAN_TRANSP_PY"), 28, row, yr)  ## Qle
