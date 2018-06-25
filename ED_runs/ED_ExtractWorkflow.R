@@ -1,3 +1,5 @@
+source("model2netcdf.ed2.Downscaling.R")
+
 # ed.dir <- "~/MetDownscaling_Manuscript/ED_runs/4_runs/ed_runs.v1/NLDAS_raw/analy"
 sitelat =  45.805822
 sitelon = -90.079722
@@ -8,11 +10,16 @@ sitelon = -90.079722
 start_date = "2000-01-01"
 end_date   = "2014-12-31"
 
-ed.dir <- "4_runs/ed_runs.v1/NLDAS_raw/analy/" # Where the raw data are
-outdir <- "4_runs/extracted_output" # Where we want to save our output
-if(!dir.exists(outdir)) dir.create(outdir)
-
-# Runs a function (that we need to source)
-source("model2netcdf.ed2.Downscaling.R")
-model2netcdf.ED2.MetDownscaling(ed.dir, outdir, sitelat, sitelon, start_date, end_date, pft_names = NULL, ed.freq="I")
-
+## Original
+# ed.dir <- "4_runs/ed_runs.v1/NLDAS_raw/analy/" # Where the raw data are
+# outdir <- "4_runs/extracted_output/NLDAS_raw" # Where we want to save our output
+all.runs <- dir("4_runs/ed_runs.v1")
+for(RUNID in all.runs){
+  ed.dir <- file.path("4_runs/ed_runs.v1", RUNID, "analy") # Where the raw data are
+  outdir <- file.path("4_runs/extracted_output", RUNID) # Where we want to save our output
+  
+  if(!dir.exists(outdir)) dir.create(outdir, recursive = T)
+  
+  # Runs a function (that we need to source)
+  model2netcdf.ED2.MetDownscaling(ed.dir, outdir, sitelat, sitelon, start_date, end_date, pft_names = NULL, ed.freq="I")
+}
