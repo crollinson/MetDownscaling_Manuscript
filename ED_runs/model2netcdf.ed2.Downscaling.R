@@ -230,7 +230,7 @@ read_I_files <- function(yr, yfiles, tfiles, outdir, start_date, end_date, ...){
     if (var %in% names(nc$var)) {
       return(ncdf4::ncvar_get(nc, var))
     } else {
-      PEcAn.logger::logger.warn("Could not find", var, "in ed hdf5 output.")
+      warning("Could not find", var, "in ed hdf5 output.")
       return(-999)
     }
   }
@@ -518,7 +518,7 @@ put_I_values <- function(yr, nc_var, out, lat, lon, begins, ends, ...){
                                      longname = "Frozen Thickness")
   nc_var[[s+14]] <- ncdf4::ncvar_def("SnowDepth", units = "m", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Total snow depth")
-  nc_var[[s+15]] <- PEcAn.utils::mstmipvar("SnowFrac", lat, lon, t, zg) # not standard
+  nc_var[[s+15]] <- mstmipvar("SnowFrac", lat, lon, t, zg) # not standard
   nc_var[[s+16]] <- ncdf4::ncvar_def("Tdepth", units = "m", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Active Layer Thickness")
   nc_var[[s+17]] <- ncdf4::ncvar_def("CO2air", units = "umol mol-1", dim = list(lon, lat, t), missval = -999, 
@@ -544,22 +544,22 @@ put_I_values <- function(yr, nc_var, out, lat, lon, begins, ends, ...){
                                      longname = "Ground heat")
   nc_var[[s+27]] <- ncdf4::ncvar_def("Qh", units = "W m-2", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Sensible heat")
-  out <- conversion(28, PEcAn.data.atmosphere::get.lv())  ## kg m-2 s-1 -> W m-2
+  out <- conversion(28, get.lv())  ## kg m-2 s-1 -> W m-2
   nc_var[[s+28]] <- ncdf4::ncvar_def("Qle", units = "W m-2", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Latent heat")
   nc_var[[s+29]] <- ncdf4::ncvar_def("SWnet", units = "W m-2", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Net shortwave radiation")
-  nc_var[[s+30]] <- PEcAn.utils::mstmipvar("RootMoist", lat, lon, t, zg)   # not standard
+  nc_var[[s+30]] <- mstmipvar("RootMoist", lat, lon, t, zg)   # not standard
   nc_var[[s+31]] <- ncdf4::ncvar_def("TVeg", units = "kg m-2 s-1", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Transpiration")
-  nc_var[[s+32]] <- PEcAn.utils::mstmipvar("WaterTableD", lat, lon, t, zg) # not standard
+  nc_var[[s+32]] <- mstmipvar("WaterTableD", lat, lon, t, zg) # not standard
   
   nc_var[[s+33]] <- ncdf4::ncvar_def("fPAR", units = "", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Absorbed fraction incoming PAR")
   nc_var[[s+34]] <- ncdf4::ncvar_def("LAI", units = "m2 m-2", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Leaf Area Index")
-  nc_var[[s+35]] <- PEcAn.utils::mstmipvar("SMFrozFrac", lat, lon, t, zg)  # not standard
-  nc_var[[s+36]] <- PEcAn.utils::mstmipvar("SMLiqFrac", lat, lon, t, zg)   # not standard
+  nc_var[[s+35]] <- mstmipvar("SMFrozFrac", lat, lon, t, zg)  # not standard
+  nc_var[[s+36]] <- mstmipvar("SMLiqFrac", lat, lon, t, zg)   # not standard
   nc_var[[s+37]] <- ncdf4::ncvar_def("SoilMoist", units = "kg m-2", dim = list(lon, lat, zg, t), missval = -999, 
                                      longname = "Average Layer Soil Moisture")
   out <- checkTemp(38)
@@ -567,13 +567,13 @@ put_I_values <- function(yr, nc_var, out, lat, lon, begins, ends, ...){
                                      longname = "Average Layer Soil Temperature")
   nc_var[[s+39]] <- ncdf4::ncvar_def("SoilWet", units = "", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Total Soil Wetness")
-  nc_var[[s+40]] <- PEcAn.utils::mstmipvar("Albedo", lat, lon, t, zg)      # not standard
+  nc_var[[s+40]] <- mstmipvar("Albedo", lat, lon, t, zg)      # not standard
   out <- checkTemp(41)
-  nc_var[[s+41]] <- PEcAn.utils::mstmipvar("SnowT", lat, lon, t, zg)       # not standard
+  nc_var[[s+41]] <- mstmipvar("SnowT", lat, lon, t, zg)       # not standard
   nc_var[[s+42]] <- ncdf4::ncvar_def("SWE", units = "kg m-2", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Snow Water Equivalent")
   out <- checkTemp(43)
-  nc_var[[s+43]] <- PEcAn.utils::mstmipvar("VegT", lat, lon, t, zg)        # not standard
+  nc_var[[s+43]] <- mstmipvar("VegT", lat, lon, t, zg)        # not standard
   nc_var[[s+44]] <- ncdf4::ncvar_def("Evap", units = "kg m-2 s-1", dim = list(lon, lat, t), missval = -999, 
                                      longname = "Total Evaporation")
   nc_var[[s+45]] <- ncdf4::ncvar_def("Qs", units = "kg m-2 s-1", dim = list(lon, lat, t), missval = -999, 

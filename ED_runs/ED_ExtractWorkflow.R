@@ -1,4 +1,7 @@
+# Sourcing some functions we need 
 source("model2netcdf.ed2.Downscaling.R")
+source("pecan.utils/metutils.R")
+source("pecan.utils/utils.R")
 
 # ed.dir <- "~/MetDownscaling_Manuscript/ED_runs/4_runs/ed_runs.v1/NLDAS_raw/analy"
 sitelat =  45.805822
