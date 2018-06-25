@@ -27,14 +27,14 @@
 ##' @return ncvar based on MstMIP definition
 ##' @author Rob Kooper
 mstmipvar <- function(name, lat = NA, lon = NA, time = NA, nsoil = NA, silent = FALSE) {
-  var <- PEcAn.utils::mstmip_vars[PEcAn.utils::mstmip_vars$Variable.Name == name, ]
+  var <- mstmip_vars[mstmip_vars$Variable.Name == name, ]
   dims <- list()
 
   if (nrow(var) == 0) {
-    var <- PEcAn.utils::mstmip_local[PEcAn.utils::mstmip_local$Variable.Name == name, ]
+    var <- mstmip_local[mstmip_local$Variable.Name == name, ]
     if (nrow(var) == 0) {
       if (!silent) {
-        PEcAn.logger::logger.info("Don't know about variable", name, " in mstmip_vars in PEcAn.utils")
+        warning("Don't know about variable", name, " in mstmip_vars in PEcAn.utils")
       }
       if (is.na(time)) {
         time <- ncdf4::ncdim_def(name = "time", units = "days since 1900-01-01 00:00:00",
@@ -58,7 +58,7 @@ mstmipvar <- function(name, lat = NA, lon = NA, time = NA, nsoil = NA, silent = 
       # skip
     } else {
       if (!silent) {
-        PEcAn.logger::logger.info("Don't know dimension for", vd, "for variable", name)
+        warning("Don't know dimension for", vd, "for variable", name)
       }
     }
   }
@@ -114,7 +114,7 @@ zero.truncate <- function(y) {
 ##' @author David LeBauer
 ##' @author Shawn Serbin
 rsync <- function(args, from, to, pattern = "") {
-  PEcAn.logger::logger.warn("NEED TO USE TUNNEL")
+  warning("NEED TO USE TUNNEL")
   system(paste0("rsync", " ", args, " ", from, pattern, " ", to), intern = TRUE)
 } # rsync
 
@@ -128,7 +128,7 @@ rsync <- function(args, from, to, pattern = "") {
 ##' @param args futher arguments
 ##' @export
 ssh <- function(host, ..., args = "") {
-  PEcAn.logger::logger.warn("NEED TO USE TUNNEL")
+  warning("NEED TO USE TUNNEL")
   if (host == "localhost") {
     command <- paste(..., args, sep = "")
   } else {

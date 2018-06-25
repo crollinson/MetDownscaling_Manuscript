@@ -2,6 +2,8 @@
 source("model2netcdf.ed2.Downscaling.R")
 source("pecan.utils/metutils.R")
 source("pecan.utils/utils.R")
+mstmip_vars <- read.csv("pecan.utils/mstmip_vars.csv")
+mstmip_local <- read.csv("pecan.utils/mstmip_local.csv")
 
 # ed.dir <- "~/MetDownscaling_Manuscript/ED_runs/4_runs/ed_runs.v1/NLDAS_raw/analy"
 sitelat =  45.805822
