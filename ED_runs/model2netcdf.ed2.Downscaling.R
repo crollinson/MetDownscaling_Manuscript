@@ -257,7 +257,6 @@ read_I_files <- function(yr, yfiles, tfiles, outdir, start_date, end_date, ...){
   n <- length(ysel)
   out <- list()
   row <- 1
-  dat.blank <- array(rep(-999, block)) # This is a little different from Pecan, but makes sure everything has same dims
     
   # note that there is always one Tower file per year
   ## ## NEED TO SET THIS UP TO LOOP THROUGH YSEL!
@@ -269,6 +268,7 @@ read_I_files <- function(yr, yfiles, tfiles, outdir, start_date, end_date, ...){
     ## determine timestep from HDF5 file
     # block <- 60*60 # We presecribed 1 hour
     block <- ncT$dim$phony_dim_0$len
+    dat.blank <- array(rep(-999, block)) # This is a little different from Pecan, but makes sure everything has same dims
     
     # block = 86400/(60*60)
     # PEcAn.logger::logger.info(paste0("Output interval: ", 86400/block, " sec"))
