@@ -27,8 +27,6 @@ for(yr in 2000:2014){
 summary(dat.all)
 
 
-met.2000
-
 plot(dat.all[dat.all$year==2007 & dat.all$doy>=180 & dat.all$doy<=181, "tair"], type="l"); abline(v=25, col="red")
 plot(dat.all[dat.all$year==2007 & dat.all$doy>=180 & dat.all$doy<=181, "swdown"], type="l"); abline(v=25, col="red")
 plot(dat.all[dat.all$year==2007 & dat.all$doy>=180 & dat.all$doy<=181, "precip"], type="l"); abline(v=25, col="red")
