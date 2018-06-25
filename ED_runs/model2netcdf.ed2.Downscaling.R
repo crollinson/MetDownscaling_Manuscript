@@ -104,8 +104,8 @@ model2netcdf.ED2.MetDownscaling <- function(ed.dir, outdir, sitelat, sitelon, st
     print(paste0("----- Processing year: ", y))
     
     # ----- read values from ED output files
-    for(i in seq_along(out_list)){
-      rflag <- ed.res.flag[i]
+    for(j in seq_along(out_list)){
+      rflag <- ed.res.flag[j]
       fcnx  <- paste0("read_", gsub("-", "", rflag), "_files")
       fcn   <- match.fun(fcnx)
       out_list[[rflag]] <- fcn(yr = y, yfiles=ylist[[rflag]], tfiles=flist[[rflag]], 
@@ -131,8 +131,8 @@ model2netcdf.ED2.MetDownscaling <- function(ed.dir, outdir, sitelat, sitelon, st
     
     # ----- put values to nc_var list   
     nc_var <- list()
-    for(i in seq_along(out_list)){
-      rflag   <- ed.res.flag[i]
+    for(j in seq_along(out_list)){
+      rflag   <- ed.res.flag[j]
       fcnx    <- paste0("put_", gsub("-", "", rflag), "_values")
       fcn     <- match.fun(fcnx)
       put_out <- fcn(yr = y, nc_var = nc_var, out = out_list[[rflag]], lat = lat, lon = lon, 
@@ -149,10 +149,10 @@ model2netcdf.ED2.MetDownscaling <- function(ed.dir, outdir, sitelat, sitelon, st
     
     # ----- write ncdf files
     
-    PEcAn.logger::logger.info("*** Writing netCDF file ***")
+    print("*** Writing netCDF file ***")
     
     out <- unlist(out_list, recursive = FALSE)
-    nc <- ncdf4::nc_create(file.path(outdir, paste(y, "nc", sep = ".")), nc_var)
+    nc <- ncdf4::nc_create(file.path(outdir, paste("ED2", y, "nc", sep = ".")), nc_var)
     varfile <- file(file.path(outdir, paste(y, "nc", "var", sep = ".")), "w")
     for (i in seq_along(nc_var)) {
       ncdf4::ncvar_put(nc, nc_var[[i]], out[[i]])
@@ -257,175 +257,182 @@ read_I_files <- function(yr, yfiles, tfiles, outdir, start_date, end_date, ...){
   n <- length(ysel)
   out <- list()
   row <- 1
-  
+  dat.blank <- array(rep(-999, block)) # This is a little different from Pecan, but makes sure everything has same dims
+    
   # note that there is always one Tower file per year
   ## ## NEED TO SET THIS UP TO LOOP THROUGH YSEL!
-  ncT <- ncdf4::nc_open(file.path(outdir, tfiles[ysel]))
-  
-  ## determine timestep from HDF5 file
-  # block <- 60*60 # We presecribed 1 hour
-  block <- ncT$dim$phony_dim_0$len
-  
-  # block = 86400/(60*60)
-  # PEcAn.logger::logger.info(paste0("Output interval: ", 86400/block, " sec"))
-  
-  
-  if ("SLZ" %in% names(ncT$var)) {
-    slzdata <- getHdf5Data(ncT, "SLZ")[,1]
-  } else {
-    warning("Could not find SLZ in Y file, making a crude assumpution.")
-    slzdata <- array(c(-2, -1.5, -1, -0.8, -0.6, -0.4, -0.2, -0.1, -0.05))
-  }
-  
-  ## Check for which version of ED2 we are using.
-  ED2vc <- CheckED2Version(ncT)
-  
-  ## store for later use, will only use last data
-  dz <- diff(slzdata)
-  dz <- dz[dz != 0]
-  
-  if (!is.null(ED2vc)) {
-    ## out <- add(getHdf5Data(ncT, 'TOTAL_AGB,1,row, yr) ## AbvGrndWood
-    out[["AbvGrndWood"]] <- add(getHdf5Data(ncT, "FMEAN_BDEAD_PY"), 1)  ## AbvGrndWood
-    out[["AutoResp"   ]] <- add(getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 2)  ## AutoResp
-    out[["CarbPools"  ]] <- add(-999, 3)  ## CarbPools
-    out[["CO2CAS"     ]] <- add(getHdf5Data(ncT, "FMEAN_CAN_CO2_PY"), 4)  ## CO2CAS
-    out[["CropYield"  ]] <- add(-999, 5)  ## CropYield
-    out[["GPP"        ]] <- add(getHdf5Data(ncT, "FMEAN_GPP_PY"), 6)  ## GPP
-    out[["HeteroResp" ]] <- add(getHdf5Data(ncT, "FMEAN_RH_PY"), 7)  ## HeteroResp
-    out[["NEE"        ]] <- add(-getHdf5Data(ncT, "FMEAN_GPP_PY") + getHdf5Data(ncT, "FMEAN_PLRESP_PY") + 
-                                  getHdf5Data(ncT, "FMEAN_RH_PY"), 8)  ## NEE
-    out[["NPP"        ]] <- add(getHdf5Data(ncT, "FMEAN_GPP_PY") - getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 9)  ## NPP
-    out[["TotalResp"  ]] <- add(getHdf5Data(ncT, "FMEAN_RH_PY") + getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 10)  ## TotalResp
-    # out <- add(getHdf5Data(ncT, 'BDEAD + getHdf5Data(ncT, 'BALIVE'),11,row, yr) ## TotLivBiom
-    out[["TotLivBiom" ]] <- add(-999, 11)  ## TotLivBiom
-    out[["TotSoilCarb"]] <- add(getHdf5Data(ncT, "FAST_SOIL_C_PY") + getHdf5Data(ncT, "STRUCT_SOIL_C_PY") + 
-                                  getHdf5Data(ncT, "SLOW_SOIL_C_PY"), 12)  ## TotSoilCarb
+  pb <- txtProgressBar(min=0, max=length(ysel), style=3)
+  for(i in seq_along(ysel)){
+    setTxtProgressBar(pb, i)
+    ncT <- ncdf4::nc_open(file.path(outdir, tfiles[ysel[i]]))
     
-    ## depth from surface to frozen layer
-    tdepth <- 0
-    fdepth <- 0
-    soiltemp <- getHdf5Data(ncT, "FMEAN_SOIL_TEMP_PY")
-    if (length(dim(soiltemp)) == 3) {
-      fdepth <- array(0, dim = dim(soiltemp)[1:2])
-      tdepth <- array(0, dim = dim(soiltemp)[1:2])
-      for (t in 1:dim(soiltemp)[1]) { # time
-        for (p in 1:dim(soiltemp)[2]) { # polygon
-          for (i in dim(soiltemp)[3]:2) { # depth
-            if (fdepth[t, p] == 0 & soiltemp[t, p, i] < 273.15 & 
-                soiltemp[t, p, i - 1] > 273.13) {
-              fdepth[t, p] <- i
+    ## determine timestep from HDF5 file
+    # block <- 60*60 # We presecribed 1 hour
+    block <- ncT$dim$phony_dim_0$len
+    
+    # block = 86400/(60*60)
+    # PEcAn.logger::logger.info(paste0("Output interval: ", 86400/block, " sec"))
+    
+    
+    if ("SLZ" %in% names(ncT$var)) {
+      slzdata <- getHdf5Data(ncT, "SLZ")[,1]
+    } else {
+      warning("Could not find SLZ in Y file, making a crude assumpution.")
+      slzdata <- array(c(-2, -1.5, -1, -0.8, -0.6, -0.4, -0.2, -0.1, -0.05))
+    }
+    
+    ## Check for which version of ED2 we are using.
+    ED2vc <- CheckED2Version(ncT)
+    
+    ## store for later use, will only use last data
+    dz <- diff(slzdata)
+    dz <- dz[dz != 0]
+    
+    if (!is.null(ED2vc)) {
+      ## out <- add(getHdf5Data(ncT, 'TOTAL_AGB,1,row, yr) ## AbvGrndWood
+      out <- add(getHdf5Data(ncT, "FMEAN_BDEAD_PY"), 1)  ## AbvGrndWood
+      out <- add(getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 2)  ## AutoResp
+      out <- add(dat.blank, 3)  ## CarbPools
+      out <- add(getHdf5Data(ncT, "FMEAN_CAN_CO2_PY"), 4)  ## CO2CAS
+      out <- add(dat.blank, 5)  ## CropYield
+      out <- add(getHdf5Data(ncT, "FMEAN_GPP_PY"), 6)  ## GPP
+      out <- add(getHdf5Data(ncT, "FMEAN_RH_PY"), 7)  ## HeteroResp
+      out <- add(-getHdf5Data(ncT, "FMEAN_GPP_PY") + getHdf5Data(ncT, "FMEAN_PLRESP_PY") + 
+                                    getHdf5Data(ncT, "FMEAN_RH_PY"), 8)  ## NEE
+      out <- add(getHdf5Data(ncT, "FMEAN_GPP_PY") - getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 9)  ## NPP
+      out <- add(getHdf5Data(ncT, "FMEAN_RH_PY") + getHdf5Data(ncT, "FMEAN_PLRESP_PY"), 10)  ## TotalResp
+      # out <- add(getHdf5Data(ncT, 'BDEAD + getHdf5Data(ncT, 'BALIVE'),11,row, yr) ## TotLivBiom
+      out <- add(dat.blank, 11)  ## TotLivBiom
+      out <- add(getHdf5Data(ncT, "FAST_SOIL_C_PY") + getHdf5Data(ncT, "STRUCT_SOIL_C_PY") + 
+                                    getHdf5Data(ncT, "SLOW_SOIL_C_PY"), 12)  ## TotSoilCarb
+      
+      ## depth from surface to frozen layer
+      tdepth <- 0
+      fdepth <- 0
+      soiltemp <- getHdf5Data(ncT, "FMEAN_SOIL_TEMP_PY")
+      if (length(dim(soiltemp)) == 3) {
+        fdepth <- array(0, dim = dim(soiltemp)[1:2])
+        tdepth <- array(0, dim = dim(soiltemp)[1:2])
+        for (t in 1:dim(soiltemp)[1]) { # time
+          for (p in 1:dim(soiltemp)[2]) { # polygon
+            for (i in dim(soiltemp)[3]:2) { # depth
+              if (fdepth[t, p] == 0 & soiltemp[t, p, i] < 273.15 & 
+                  soiltemp[t, p, i - 1] > 273.13) {
+                fdepth[t, p] <- i
+              }
+              if (tdepth[t, p] == 0 & soiltemp[t, p, i] > 273.15 & 
+                  soiltemp[t, p, i - 1] < 273.13) {
+                tdepth[t, p] <- i
+              }
             }
-            if (tdepth[t, p] == 0 & soiltemp[t, p, i] > 273.15 & 
-                soiltemp[t, p, i - 1] < 273.13) {
-              tdepth[t, p] <- i
-            }
-          }
-          SLZ <- c(slzdata[t, ], 0)
-          z1 <- (SLZ[fdepth[t, p] + 1] + SLZ[fdepth[t, p]]) / 2
-          z2 <- (SLZ[fdepth[t, p]] + SLZ[fdepth[t, p] - 1]) / 2
-          if (fdepth[t, p] > 0) {
-            fdepth[t, p] <- z1 + (z2 - z1) * (273.15 - soiltemp[t, p, fdepth[t, p]]) / 
-              (soiltemp[t, p, fdepth[t, p] - 1] - soiltemp[t, p, fdepth[t, p]])
-          }
-          if (tdepth[t, p] > 0) {
             SLZ <- c(slzdata[t, ], 0)
-            z1 <- (SLZ[tdepth[t, p] + 1] + SLZ[tdepth[t, p]]) / 2
-            z2 <- (SLZ[tdepth[t, p]] + SLZ[tdepth[t, p] - 1]) / 2
-            tdepth[t, p] <- z1 + (z2 - z1) * (273.15 - soiltemp[t, p, tdepth[t, p]]) / 
-              (soiltemp[t, p, tdepth[t, p] - 1] - soiltemp[t, p, tdepth[t, p]])
+            z1 <- (SLZ[fdepth[t, p] + 1] + SLZ[fdepth[t, p]]) / 2
+            z2 <- (SLZ[fdepth[t, p]] + SLZ[fdepth[t, p] - 1]) / 2
+            if (fdepth[t, p] > 0) {
+              fdepth[t, p] <- z1 + (z2 - z1) * (273.15 - soiltemp[t, p, fdepth[t, p]]) / 
+                (soiltemp[t, p, fdepth[t, p] - 1] - soiltemp[t, p, fdepth[t, p]])
+            }
+            if (tdepth[t, p] > 0) {
+              SLZ <- c(slzdata[t, ], 0)
+              z1 <- (SLZ[tdepth[t, p] + 1] + SLZ[tdepth[t, p]]) / 2
+              z2 <- (SLZ[tdepth[t, p]] + SLZ[tdepth[t, p] - 1]) / 2
+              tdepth[t, p] <- z1 + (z2 - z1) * (273.15 - soiltemp[t, p, tdepth[t, p]]) / 
+                (soiltemp[t, p, tdepth[t, p] - 1] - soiltemp[t, p, tdepth[t, p]])
+            }
+          }
+        }
+      } else {
+        # no polygons, just time vs depth
+        fdepth <- array(0, ncol(soiltemp))
+        tdepth <- array(0, ncol(soiltemp))
+        for (t in 1:ncol(soiltemp)) { # time
+          for (d in 2:nrow(soiltemp)) { # depth
+            if (fdepth[t] == 0 & soiltemp[d, t] < 273.15 & soiltemp[d - 1, t] > 273.13) {
+              fdepth[t] <- d
+            }
+            if (tdepth[t] == 0 & soiltemp[d, t] > 273.15 & soiltemp[d - 1, t] < 273.13) {
+              tdepth[t] <- d
+            }
+          }
+          if (fdepth[t] > 0) {
+            SLZ <- c(slzdata, 0)
+            z1 <- (SLZ[fdepth[t] + 1] + SLZ[fdepth[t]]) / 2
+            z2 <- (SLZ[fdepth[t]] + SLZ[fdepth[t] - 1]) / 2
+            fdepth[t] <- z1 + (z2 - z1) * (273.15 - soiltemp[fdepth[t], t]) / 
+              (soiltemp[fdepth[t] - 1, t] - soiltemp[fdepth[t], t])
+          }
+          if (tdepth[t] > 0) {
+            SLZ <- c(slzdata, 0)
+            z1 <- (SLZ[tdepth[t] + 1] + SLZ[tdepth[t]]) / 2
+            z2 <- (SLZ[tdepth[t]] + SLZ[tdepth[t] - 1]) / 2
+            tdepth[t] <- z1 + (z2 - z1) * (273.15 - soiltemp[tdepth[t], t]) / 
+              (soiltemp[tdepth[t] - 1, t] - soiltemp[tdepth[t], t])
           }
         }
       }
-    } else {
-      # no polygons, just time vs depth
-      fdepth <- array(0, ncol(soiltemp))
-      tdepth <- array(0, ncol(soiltemp))
-      for (t in 1:ncol(soiltemp)) { # time
-        for (d in 2:nrow(soiltemp)) { # depth
-          if (fdepth[t] == 0 & soiltemp[d, t] < 273.15 & soiltemp[d - 1, t] > 273.13) {
-            fdepth[t] <- d
-          }
-          if (tdepth[t] == 0 & soiltemp[d, t] > 273.15 & soiltemp[d - 1, t] < 273.13) {
-            tdepth[t] <- d
-          }
-        }
-        if (fdepth[t] > 0) {
-          SLZ <- c(slzdata, 0)
-          z1 <- (SLZ[fdepth[t] + 1] + SLZ[fdepth[t]]) / 2
-          z2 <- (SLZ[fdepth[t]] + SLZ[fdepth[t] - 1]) / 2
-          fdepth[t] <- z1 + (z2 - z1) * (273.15 - soiltemp[fdepth[t], t]) / 
-            (soiltemp[fdepth[t] - 1, t] - soiltemp[fdepth[t], t])
-        }
-        if (tdepth[t] > 0) {
-          SLZ <- c(slzdata, 0)
-          z1 <- (SLZ[tdepth[t] + 1] + SLZ[tdepth[t]]) / 2
-          z2 <- (SLZ[tdepth[t]] + SLZ[tdepth[t] - 1]) / 2
-          tdepth[t] <- z1 + (z2 - z1) * (273.15 - soiltemp[tdepth[t], t]) / 
-            (soiltemp[tdepth[t] - 1, t] - soiltemp[tdepth[t], t])
-        }
+      
+      out <- add(fdepth, 13)  ## Fdepth
+      out <- add(getHdf5Data(ncT, "FMEAN_SFCW_DEPTH_PY"), 14)  ## SnowDepth (ED2 currently groups snow in to surface water)
+      out <- add(1 - getHdf5Data(ncT, "FMEAN_SFCW_FLIQ_PY"), 15)  ## SnowFrac (ED2 currently groups snow in to surface water)
+      out <- add(tdepth, 16)  ## Tdepth
+      out <- add(getHdf5Data(ncT, "FMEAN_ATM_CO2_PY"), 17)  ## CO2air
+      out <- add(getHdf5Data(ncT, "FMEAN_ATM_RLONG_PY"), 18)  ## Lwdown
+      out <- add(getHdf5Data(ncT, "FMEAN_ATM_PRSS_PY"), 19)  ## Psurf
+      out <- add(getHdf5Data(ncT, "FMEAN_ATM_SHV_PY"), 20)  ## Qair
+      out <- add(getHdf5Data(ncT, "FMEAN_PCPG_PY"), 21)  ## Rainf
+      out <- add(getHdf5Data(ncT, "FMEAN_ATM_PAR_PY"), 22)  ## Swdown
+      out <- add(getHdf5Data(ncT, "FMEAN_ATM_TEMP_PY"), 23)  ## Tair
+      out <- add(getHdf5Data(ncT, "FMEAN_ATM_VELS_PY"), 24)  ## Wind
+      out <- add(getHdf5Data(ncT, 'FMEAN_ATM_RLONG_PY')-getHdf5Data(ncT, 'FMEAN_RLONGUP_PY'), 25) ## Lwnet
+      # out <- add(apply(getHdf5Data(ncT, 'FMEAN_SENSIBLE_GG_PY'),2,sum) + getHdf5Data(ncT,'FMEAN_VAPOR_GC_PY')*2272000, 26) ## Qg
+      out <- add(dat.blank, 26)  ## Qg
+      out <- add(getHdf5Data(ncT, "FMEAN_SENSIBLE_AC_PY"), 27)  ## Qh
+      out <- add(getHdf5Data(ncT, "FMEAN_VAPOR_LC_PY") + getHdf5Data(ncT, "FMEAN_VAPOR_WC_PY") +
+                                    getHdf5Data(ncT, "FMEAN_VAPOR_GC_PY") + getHdf5Data(ncT, "FMEAN_TRANSP_PY"), 28)  ## Qle
+      out <- add(dat.blank, 29)  ## Swnet
+      out <- add(dat.blank, 30)  ## RootMoist
+      out <- add(getHdf5Data(ncT, "FMEAN_TRANSP_PY"), 31)  ## Tveg
+      out <- add(getHdf5Data(ncT, "ZBAR"), 32)  ## WaterTableD
+      out <- add(dat.blank, 33)  ## fPAR
+      
+      # code changes proposed by MCD, tested by SPS 20160607
+      laidata <- getHdf5Data(ncT, "LAI_PY")
+      if (length(dim(laidata)) == 3) {
+        laidata <- apply(laidata, 3, sum)
+        out <- add(array(laidata, dim = length(laidata)), 34)
+      } else {
+        out <- add(dat.blank, 34)
       }
+      
+      ##fliq <- sum(getHdf5Data(ncT, 'AVG_SOIL_FRACLIQ')*dz)/-min(z)
+      fliq <- NA  #getHdf5Data(ncT, 'FMEAN_SFCW_FLIQ_PY')
+      # out <- add(1 - fliq, 35)  ## SMFrozFrac
+      # out <- add(fliq, 36)  ## SMLiqFrac
+      out <- add(dat.blank, 35)  ## SMFrozFrac
+      out <- add(dat.blank, 36)  ## SMLiqFrac
+      ## This needs to be soil wetness, i.e. multilple levels deep
+      out <- add(getHdf5Data(ncT, "FMEAN_SOIL_WATER_PY"), 37)  ## SoilWater  **********
+      ## out <- add(sum(soiltemp*dz)/-min(z),38) ## SoilTemp
+      out <- add(soiltemp, 38)  ## SoilTemp
+      out <- add(dat.blank, 39)  ## SoilWet
+      out <- add(getHdf5Data(ncT, "FMEAN_ALBEDO_PY"), 40)  ## Albedo
+      out <- add(getHdf5Data(ncT, "FMEAN_SFCW_TEMP_PY"), 41)  ## SnowT (ED2 currently groups snow in to surface water)
+      out <- add(getHdf5Data(ncT, "FMEAN_SFCW_MASS_PY"), 42)  ## SWE (ED2 currently groups snow in to surface water)
+      out <- add(getHdf5Data(ncT, "FMEAN_LEAF_TEMP_PY"), 43)  ## VegT
+      out <- add(getHdf5Data(ncT, "FMEAN_VAPOR_LC_PY") + getHdf5Data(ncT, "FMEAN_VAPOR_WC_PY") + 
+                             getHdf5Data(ncT, "FMEAN_VAPOR_GC_PY") + getHdf5Data(ncT, "FMEAN_TRANSP_PY"), 44)  ## Evap
+      out <- add(getHdf5Data(ncT, "FMEAN_QRUNOFF_PY"), 45)  ## Qs
+      out <- add(getHdf5Data(ncT, "BASEFLOW"), 46)  ## Qsb
+      
+      out <- add(getHdf5Data(ncT, "FMEAN_ROOT_RESP_PY") + getHdf5Data(ncT, "FMEAN_ROOT_GROWTH_RESP_PY") + 
+                                 getHdf5Data(ncT, "FMEAN_RH_PY"), 47)  ## SoilResp
+      out$SLZ <- slzdata
+      
     }
     
-    out[["Fdepth"     ]] <- add(fdepth, 13, row, yr)  ## Fdepth
-    out[["SnowDepth"  ]] <- add(getHdf5Data(ncT, "FMEAN_SFCW_DEPTH_PY"), 14, row, yr)  ## SnowDepth (ED2 currently groups snow in to surface water)
-    out[["SnowFrac"   ]] <- add(1 - getHdf5Data(ncT, "FMEAN_SFCW_FLIQ_PY"), 15, row, yr)  ## SnowFrac (ED2 currently groups snow in to surface water)
-    out[["Tdepth"     ]] <- add(tdepth, 16, row, yr)  ## Tdepth
-    out[["CO2air"     ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_CO2_PY"), 17, row, yr)  ## CO2air
-    out[["Lwdown"     ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_RLONG_PY"), 18, row, yr)  ## Lwdown
-    out[["Psurf"      ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_PRSS_PY"), 19, row, yr)  ## Psurf
-    out[["Qair"       ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_SHV_PY"), 20, row, yr)  ## Qair
-    out[["Rainf"      ]] <- add(getHdf5Data(ncT, "FMEAN_PCPG_PY"), 21, row, yr)  ## Rainf
-    out[["Swdown"     ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_PAR_PY"), 22, row, yr)  ## Swdown
-    out[["Tair"       ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_TEMP_PY"), 23, row, yr)  ## Tair
-    out[["Wind"       ]] <- add(getHdf5Data(ncT, "FMEAN_ATM_VELS_PY"), 24, row, yr)  ## Wind
-    out[["LWnet"      ]] <- add(getHdf5Data(ncT, 'FMEAN_ATM_RLONG_PY')-getHdf5Data(ncT, 'FMEAN_RLONGUP_PY'), 25, row, yr) ## Lwnet
-    # out[["Qg"         ]] <- add(apply(getHdf5Data(ncT, 'FMEAN_SENSIBLE_GG_PY'),2,sum) + getHdf5Data(ncT,'FMEAN_VAPOR_GC_PY')*2272000, 26, row, yr) ## Qg
-    out[["Qg"         ]] <- add(-999, 26, row, yr)  ## Qg
-    out[["Qh"         ]] <- add(getHdf5Data(ncT, "FMEAN_SENSIBLE_AC_PY"), 27, row, yr)  ## Qh
-    out[["Qle"        ]] <- add(getHdf5Data(ncT, "FMEAN_VAPOR_LC_PY") + getHdf5Data(ncT, "FMEAN_VAPOR_WC_PY") +
-                                  getHdf5Data(ncT, "FMEAN_VAPOR_GC_PY") + getHdf5Data(ncT, "FMEAN_TRANSP_PY"), 28, row, yr)  ## Qle
-    out[["Swnet"      ]] <- add(-999, 29, row, yr)  ## Swnet
-    out[["RootMoist"  ]] <- add(-999, 30, row, yr)  ## RootMoist
-    out[["Tveg"       ]] <- add(getHdf5Data(ncT, "FMEAN_TRANSP_PY"), 31, row, yr)  ## Tveg
-    out[["WaterTableD"]] <- add(getHdf5Data(ncT, "ZBAR"), 32, row, yr)  ## WaterTableD
-    out[["fPAR"       ]] <- add(-999, 33, row, yr)  ## fPAR
-
-    # code changes proposed by MCD, tested by SPS 20160607
-    laidata <- getHdf5Data(ncT, "LAI_PY")
-    if (length(dim(laidata)) == 3) {
-      laidata <- apply(laidata, 3, sum)
-      out[["LAI"]] <- add(array(laidata, dim = length(laidata)), 34, row, yr)
-    } else {
-      out <- add(-999, 34, row, yr)
-    }
-    
-    ##fliq <- sum(getHdf5Data(ncT, 'AVG_SOIL_FRACLIQ')*dz)/-min(z)
-    fliq <- NA  #getHdf5Data(ncT, 'FMEAN_SFCW_FLIQ_PY')
-    out[["SMFrozFrac"]] <- add(1 - fliq, 35, row, yr)  ## SMFrozFrac
-    out[["SMLIqFrac"]] <- add(fliq, 36, row, yr)  ## SMLiqFrac
-    ## This needs to be soil wetness, i.e. multilple levels deep
-    out[["SoilWater"]] <- add(getHdf5Data(ncT, "FMEAN_SOIL_WATER_PY"), 37, row, yr)  ## SoilWater  **********
-    ## out <- add(sum(soiltemp*dz)/-min(z),38) ## SoilTemp
-    out[["SoilTemp"]] <- add(soiltemp, 38, row, yr)  ## SoilTemp
-    out[["SoilWet"]] <- add(-999, 39, row, yr)  ## SoilWet
-    out[["Albedo"]] <- add(getHdf5Data(ncT, "FMEAN_ALBEDO_PY"), 40, row, yr)  ## Albedo
-    out[["SnowT"]] <- add(getHdf5Data(ncT, "FMEAN_SFCW_TEMP_PY"), 41, row, yr)  ## SnowT (ED2 currently groups snow in to surface water)
-    out[["SWE"]] <- add(getHdf5Data(ncT, "FMEAN_SFCW_MASS_PY"), 42, row, yr)  ## SWE (ED2 currently groups snow in to surface water)
-    out[["VegT"]] <- add(getHdf5Data(ncT, "FMEAN_LEAF_TEMP_PY"), 43, row, yr)  ## VegT
-    out[["Evap"]] <- add(getHdf5Data(ncT, "FMEAN_VAPOR_LC_PY") + getHdf5Data(ncT, "FMEAN_VAPOR_WC_PY") + 
-                 getHdf5Data(ncT, "FMEAN_VAPOR_GC_PY") + getHdf5Data(ncT, "FMEAN_TRANSP_PY"), 44, 
-               row, yr)  ## Evap
-    out[["Qs"]] <- add(getHdf5Data(ncT, "FMEAN_QRUNOFF_PY"), 45, row, yr)  ## Qs
-    out[["Qsb"]] <- add(getHdf5Data(ncT, "BASEFLOW"), 46, row, yr)  ## Qsb
-    
-    out[["SoilResp"]] <- add(getHdf5Data(ncT, "FMEAN_ROOT_RESP_PY") + getHdf5Data(ncT, "FMEAN_ROOT_GROWTH_RESP_PY") + 
-                 getHdf5Data(ncT, "FMEAN_RH_PY"), 47, row, yr)  ## SoilResp
-    out$SLZ <- slzdata
+    ncdf4::nc_close(ncT)
     
   }
-  
-  ncdf4::nc_close(ncT)
   
   return(out)
   
