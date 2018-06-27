@@ -16,14 +16,15 @@ sitelon = -90.079722
 ## Original
 # ed.dir <- "4_runs/ed_runs.v1/NLDAS_raw/analy/" # Where the raw data are
 # outdir <- "4_runs/extracted_output/NLDAS_raw" # Where we want to save our output
-all.runs <- dir("4_runs/ed_runs.v1")
-for(RUNID in all.runs){
+runs.dir <- "/home/cbutkiewicz/MetDownscaling_Manuscript/ED_runs"
+all.runs <- dir(file.path(runs.dir, "4_runs/ed_runs.v1"))
+for(RUNID in all.runs[4:length(all.runs)]){
   
   # -------
   # Set up dynamic file paths based on each site we're looping through
   # -------
-  ed.dir <- file.path("4_runs/ed_runs.v1", RUNID, "analy") # Where the raw data are
-  outdir <- file.path("4_runs/extracted_output", RUNID) # Where we want to save our output
+  ed.dir <- file.path(runs.dir, "4_runs/ed_runs.v1", RUNID, "analy") # Where the raw data are
+  outdir <- file.path(runs.dir, "4_runs/extracted_output", RUNID) # Where we want to save our output
   if(!dir.exists(outdir)) dir.create(outdir, recursive = T)
   # -------
   
