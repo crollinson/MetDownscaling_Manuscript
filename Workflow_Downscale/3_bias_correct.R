@@ -20,13 +20,6 @@
 # -----------------------------------
 # Met Dataset Workflow
 # -----------------------------------
-# 1. Set up ensemble structure; copy LDAS into ensemble directories
-# 2. Debias CRUNCEP (1 series) using LDAS (1 series)
-#    - save 1901-1979 (until LDAS kicks in)
-# 3. Debias GCM historical runs (1 time series) using CRUNCEP (n.ens series)
-#    - save 1850-1901 (until CRUNCEP kicks in)
-# 4. Debias GCM past millennium (1 time series) using GCM Historical (n.ens series)
-#    - save 850-1849 (until GCM historical kicks in)
 # -----------------------------------
 
 rm(list=ls())
@@ -41,9 +34,9 @@ library(stringr)
 library(lubridate)
 
 # Set the working directory
-wd.base <- "/Volumes/GoogleDrive/My Drive/Temporal Downscaling Group/Analyses/"
-out.base <- wd.base
-setwd(wd.base)
+# wd.base <- ".."
+# out.base <- wd.base
+# setwd(wd.base)
 
 # Setting some important file paths
 path.pecan <- "~/Desktop/Research/pecan"
